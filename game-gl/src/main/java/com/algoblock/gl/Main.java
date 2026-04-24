@@ -75,7 +75,7 @@ public class Main {
         });
 
         LevelLoader levelLoader = new LevelLoader();
-        List<Level> levels = levelLoader.loadRange(1, 30);
+        List<Level> levels = levelLoader.loadRange(1, 10);
         BlockRegistry registry = new BlockRegistry();
         GameCoreService service = new GameCoreService(registry);
 

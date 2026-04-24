@@ -23,7 +23,7 @@ public class DiagnosticsPage implements Program<DiagnosticsPage.Model, Diagnosti
     private static final int CURSOR = 0x22CC22;
     private static final int NORMAL_TEXT = 0x888888;
     private static final int HOVER_TEXT = 0xFFFFFF;
-    private static final String[] OPTIONS = { "Test Render", "Test Font", "chroot" };
+    private static final String[] OPTIONS = { "Test Render", "Test Font", "Exit Live" };
 
     // 页面组件
     private final DisplayTestPattern displayTest = new DisplayTestPattern();
