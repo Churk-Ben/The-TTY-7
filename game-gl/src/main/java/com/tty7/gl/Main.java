@@ -25,9 +25,9 @@ import com.tty7.gl.ui.app.AppCmdHandler;
 import com.tty7.gl.ui.app.AppModel;
 import com.tty7.gl.ui.app.AppMsg;
 import com.tty7.gl.ui.app.AppProgram;
+import com.tty7.gl.ui.pages.DiagnosticsPage;
 import com.tty7.gl.ui.pages.GamePage;
 import com.tty7.gl.ui.pages.StartPage;
-import com.tty7.gl.ui.pages.diagnostics.DiagnosticsPage;
 import com.tty7.gl.ui.tea.TeaRuntime;
 
 import java.util.List;

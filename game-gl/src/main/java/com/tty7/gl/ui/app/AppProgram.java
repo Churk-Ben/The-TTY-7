@@ -3,9 +3,9 @@ package com.tty7.gl.ui.app;
 import com.tty7.core.levels.Level;
 import com.tty7.gl.renderer.core.RenderFrame;
 import com.tty7.gl.renderer.core.TerminalBuffer;
+import com.tty7.gl.ui.pages.DiagnosticsPage;
 import com.tty7.gl.ui.pages.GamePage;
 import com.tty7.gl.ui.pages.StartPage;
-import com.tty7.gl.ui.pages.diagnostics.DiagnosticsPage;
 import com.tty7.gl.ui.tea.Program;
 import com.tty7.gl.ui.tea.UpdateResult;
 

@@ -1,4 +1,4 @@
-package com.tty7.gl.ui.pages.diagnostics;
+package com.tty7.gl.ui.pages;
 
 import java.util.List;
 
@@ -10,6 +10,8 @@ import com.tty7.gl.renderer.effect.UiEffect;
 import com.tty7.gl.ui.components.CMatrixComponent;
 import com.tty7.gl.ui.components.PanelComponent;
 import com.tty7.gl.ui.effect.GlitchEffect;
+import com.tty7.gl.ui.pages.diagnostics.DisplayTestPattern;
+import com.tty7.gl.ui.pages.diagnostics.FontDiagnosticTestPattern;
 import com.tty7.gl.ui.tea.Program;
 import com.tty7.gl.ui.tea.UpdateResult;
 import com.tty7.gl.utils.TextUtil;

@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// 这一坨, 我之后再看吧
+// 这一坨, 我之后再看吧. 要大改.
 public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.Cmd> {
     private static final int BG = 0x0D1117;
     private static final int FG = 0xCDD9E5;
