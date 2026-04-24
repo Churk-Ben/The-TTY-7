@@ -8,11 +8,11 @@
 
 ## 包结构
 
-### com.algoblock.gl
+### com.tty7.gl
 
 主包，包含应用程序入口点。
 
-### com.algoblock.gl.input
+### com.tty7.gl.input
 
 输入事件处理模块：
 
@@ -23,7 +23,7 @@
 - `KeyMapper` - 按键映射器
 - `PasteEvent` - 粘贴事件
 
-### com.algoblock.gl.renderer
+### com.tty7.gl.renderer
 
 渲染器模块：
 
@@ -38,13 +38,13 @@
 - `TextRenderer` - 文本渲染器
 - `UiEffect` - UI 特效
 
-### com.algoblock.gl.services
+### com.tty7.gl.services
 
 业务服务：
 
 - `CompletionService` - 自动补全服务
 
-### com.algoblock.gl.ui
+### com.tty7.gl.ui
 
 用户界面模块：
 
@@ -242,7 +242,7 @@ implementation("javazoom:jlayer:1.0.1")
 ## 约定
 
 - 游戏窗口大小：1280x720
-- 游戏窗口标题：AlgoBlock
+- 游戏窗口标题：tty7
 - 游戏窗口背景颜色：#0D1117
 - 主要颜色：#22CC22
 - 文本颜色：#FFFFFF

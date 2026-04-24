@@ -38,5 +38,5 @@ dependencies {
 }
 
 application {
-    mainClass.set("com.algoblock.gl.Main")
+    mainClass.set("com.tty7.gl.Main")
 }

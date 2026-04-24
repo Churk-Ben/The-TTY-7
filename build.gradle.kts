@@ -3,8 +3,8 @@ plugins {
 }
 
 allprojects {
-    group = "com.algoblock"
-    version = "0.1.0"
+    group = "com.tty7"
+    version = "0.3.1"
 
     repositories {
         mavenCentral()
