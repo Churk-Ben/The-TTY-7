@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
-
     private final StartPage startPage;
     private final GamePage gamePage;
     private final DiagnosticsPage diagnosticsPage;
@@ -74,6 +73,7 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                         }
                     }
                 }
+                appendScreenTransitionAudio(model.screen(), nextScreen, commands);
                 AppModel nextModel = new AppModel(nextScreen, result.model(), nextGameModel, model.diagnosticsModel(),
                         model.currentLevel());
                 return new UpdateResult<>(nextModel, commands);
@@ -120,6 +120,7 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                         }
                     }
                 }
+                appendScreenTransitionAudio(model.screen(), nextScreen, commands);
                 AppModel nextModel = new AppModel(nextScreen, model.startModel(), nextGameModel,
                         model.diagnosticsModel(), nextCurrentLevel);
                 return new UpdateResult<>(nextModel, commands);
@@ -148,6 +149,7 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                         }
                     }
                 }
+                appendScreenTransitionAudio(model.screen(), nextScreen, commands);
                 AppModel nextModel = new AppModel(nextScreen, model.startModel(), model.gameModel(), result.model(),
                         model.currentLevel());
                 return new UpdateResult<>(nextModel, commands);
@@ -168,5 +170,21 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
         } else {
             return diagnosticsPage.view(model.diagnosticsModel(), buffer, nowMillis);
         }
+    }
+
+    private void appendScreenTransitionAudio(AppModel.Screen currentScreen, AppModel.Screen nextScreen,
+            List<AppCmd> commands) {
+        boolean currentHasLoopingMusic = shouldPlayLoopingMusic(currentScreen);
+        boolean nextHasLoopingMusic = shouldPlayLoopingMusic(nextScreen);
+
+        if (currentHasLoopingMusic && !nextHasLoopingMusic) {
+            commands.add(new AppCmd.StopLoopingMusic());
+        } else if (!currentHasLoopingMusic && nextHasLoopingMusic) {
+            commands.add(new AppCmd.StartLoopingMusic(AppCmdHandler.TITLE_BGM_FIRST_MEET));
+        }
+    }
+
+    private boolean shouldPlayLoopingMusic(AppModel.Screen screen) {
+        return screen == AppModel.Screen.START || screen == AppModel.Screen.DIAGNOSTICS;
     }
 }

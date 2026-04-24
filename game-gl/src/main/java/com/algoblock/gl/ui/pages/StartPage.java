@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartPage.Cmd> {
     private static final String SFX_CURSOR_MOVE = "/assets/audio/sfx/cursor-move.mp3";
@@ -27,18 +26,7 @@ public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartP
     private static final int NORMAL_TEXT = 0x888888;
     private static final int HOVER_TEXT = 0xFFFFFF;
     private static final String[] OPTIONS = { "Login (root)", "Live Environment", "Exit System" };
-    private static final String[] TITLE_RESOURCES = {
-            "/assets/titles/ascii_title_chunky.txt",
-            "/assets/titles/ascii_title_graffiti.txt"
-            // "/assets/titles/ascii_title_rectangles.txt"
-    };
-    private static final String[] FALLBACK_TITLE_ART = {
-            "   _______ __               ______ __              __      ",
-            "  |   _   |  |.-----.-----.|   __ \\  |.-----.----.|  |--.  ",
-            "  |       |  ||  _  |  _  ||   __ <  ||  _  |  __||    <   ",
-            "  |___|___|__||___  |_____||______/__||_____|____||__|__|  ",
-            "              |_____|                                      "
-    };
+    private static final String TITLE_ASCII = "/assets/titles/ascii_title_chunky.txt";
 
     // 页面组件
     private final CMatrixComponent cmatrix = new CMatrixComponent();
@@ -176,20 +164,19 @@ public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartP
     }
 
     private static String[] loadRandomTitleArt() {
-        String selected = TITLE_RESOURCES[new Random().nextInt(TITLE_RESOURCES.length)];
-        try (InputStream is = StartPage.class.getResourceAsStream(selected)) {
+        try (InputStream is = StartPage.class.getResourceAsStream(TITLE_ASCII)) {
             if (is == null) {
-                return FALLBACK_TITLE_ART;
+                return null;
             }
             String[] content = new String(is.readAllBytes(), StandardCharsets.UTF_8).split("\r?\n");
             List<String> lines = new ArrayList<>(List.of(content));
             trimTrailingEmptyLines(lines);
             if (lines.isEmpty()) {
-                return FALLBACK_TITLE_ART;
+                return null;
             }
             return lines.toArray(String[]::new);
         } catch (IOException e) {
-            return FALLBACK_TITLE_ART;
+            return null;
         }
     }
 

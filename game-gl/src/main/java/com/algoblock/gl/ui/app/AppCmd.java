@@ -9,6 +9,12 @@ public sealed interface AppCmd {
     record PlaySound(String resourcePath) implements AppCmd {
     }
 
+    record StartLoopingMusic(String resourcePath) implements AppCmd {
+    }
+
+    record StopLoopingMusic() implements AppCmd {
+    }
+
     record Exit() implements AppCmd {
     }
 }
