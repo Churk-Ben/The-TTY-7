@@ -1,4 +1,4 @@
-package com.tty7.api;
+package com.tty7.api.algoblock;
 
 public class TLEException extends RuntimeException {
     public TLEException() {

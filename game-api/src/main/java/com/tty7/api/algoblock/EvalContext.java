@@ -1,4 +1,4 @@
-package com.tty7.api;
+package com.tty7.api.algoblock;
 
 import java.util.ArrayList;
 import java.util.Collections;

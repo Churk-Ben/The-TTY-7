@@ -1,4 +1,4 @@
-package com.tty7.api;
+package com.tty7.api.algoblock;
 
 public abstract class UnaryBlock<I, O> extends Block<O> {
     protected Block<I> child;

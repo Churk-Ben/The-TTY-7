@@ -1,4 +1,4 @@
-package com.tty7.api;
+package com.tty7.api.algoblock;
 
 public abstract class Block<O> {
     public abstract O evaluate(EvalContext ctx);

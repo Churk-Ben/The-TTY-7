@@ -1,4 +1,4 @@
-package com.tty7.api;
+package com.tty7.api.algoblock;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
