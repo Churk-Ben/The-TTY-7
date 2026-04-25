@@ -25,6 +25,7 @@ import com.tty7.gl.ui.app.AppCmdHandler;
 import com.tty7.gl.ui.app.AppModel;
 import com.tty7.gl.ui.app.AppMsg;
 import com.tty7.gl.ui.app.AppProgram;
+import com.tty7.gl.ui.pages.BootPage;
 import com.tty7.gl.ui.pages.DiagnosticsPage;
 import com.tty7.gl.ui.pages.GamePage;
 import com.tty7.gl.ui.pages.StartPage;
@@ -81,10 +82,11 @@ public class Main {
         BlockRegistry registry = new BlockRegistry();
         GameCoreService service = new GameCoreService(registry);
 
+        BootPage bootPage = new BootPage();
         StartPage startPage = new StartPage();
         GamePage gamePage = new GamePage(new CompletionService(registry));
         DiagnosticsPage diagnosticsPage = new DiagnosticsPage();
-        AppProgram program = new AppProgram(startPage, gamePage, diagnosticsPage, levels);
+        AppProgram program = new AppProgram(bootPage, startPage, gamePage, diagnosticsPage, levels);
         AppCmdHandler cmdHandler = new AppCmdHandler(service);
 
         TeaRuntime<AppModel, AppMsg, AppCmd> uiRuntime = new TeaRuntime<>(program, cmdHandler);
@@ -131,6 +133,12 @@ public class Main {
             EffectsRenderer effectsRenderer = new EffectsRenderer();
 
             while (!glfwWindowShouldClose(window)) {
+                long nowMillis = System.currentTimeMillis();
+                AppModel snapshot = uiRuntime.snapshotModel();
+                if (snapshot.screen() == AppModel.Screen.BOOT) {
+                    uiRuntime.dispatch(new AppMsg.Tick(nowMillis));
+                }
+
                 AppModel model = uiRuntime.snapshotModel();
                 boolean isFontDiag = model.screen() == AppModel.Screen.DIAGNOSTICS &&
                         model.diagnosticsModel().state() == DiagnosticsPage.State.FONT_DIAGNOSTIC;
@@ -149,7 +157,7 @@ public class Main {
                     glClearColor(0.05f, 0.07f, 0.09f, 1f);
                     glClear(GL_COLOR_BUFFER_BIT);
 
-                    RenderFrame uiFrame = uiRuntime.render(uiBuffer, System.currentTimeMillis());
+                    RenderFrame uiFrame = uiRuntime.render(uiBuffer, nowMillis);
                     TerminalBuffer renderBuffer = uiFrame != null ? uiFrame.textBuffer() : uiBuffer;
 
                     textRenderer.upload(renderBuffer);

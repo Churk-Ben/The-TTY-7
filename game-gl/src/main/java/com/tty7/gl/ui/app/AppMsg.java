@@ -7,6 +7,9 @@ public sealed interface AppMsg {
     record Intent(InputIntent intent) implements AppMsg {
     }
 
+    record Tick(long nowMillis) implements AppMsg {
+    }
+
     record SubmitFinished(SubmissionResult result) implements AppMsg {
     }
 }

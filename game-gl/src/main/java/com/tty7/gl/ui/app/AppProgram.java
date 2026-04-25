@@ -3,6 +3,7 @@ package com.tty7.gl.ui.app;
 import com.tty7.core.levels.Level;
 import com.tty7.gl.renderer.core.RenderFrame;
 import com.tty7.gl.renderer.core.TerminalBuffer;
+import com.tty7.gl.ui.pages.BootPage;
 import com.tty7.gl.ui.pages.DiagnosticsPage;
 import com.tty7.gl.ui.pages.GamePage;
 import com.tty7.gl.ui.pages.StartPage;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
+    private final BootPage bootPage;
     private final StartPage startPage;
     private final GamePage gamePage;
     private final DiagnosticsPage diagnosticsPage;
@@ -24,10 +26,12 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
     private static final String SFX_ACCEPT = "/assets/audio/sfx/accept.mp3";
     private static final String SFX_WRONG_ANSWER = "/assets/audio/sfx/wrong-answer.mp3";
 
-    public AppProgram(StartPage startPage, GamePage gamePage, DiagnosticsPage diagnosticsPage, List<Level> levels) {
+    public AppProgram(BootPage bootPage, StartPage startPage, GamePage gamePage, DiagnosticsPage diagnosticsPage,
+            List<Level> levels) {
         if (levels == null || levels.isEmpty()) {
             throw new IllegalArgumentException("levels must not be empty");
         }
+        this.bootPage = bootPage;
         this.startPage = startPage;
         this.gamePage = gamePage;
         this.diagnosticsPage = diagnosticsPage;
@@ -45,6 +49,41 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
 
     @Override
     public UpdateResult<AppModel, AppCmd> update(AppModel model, AppMsg msg) {
+        if (model.screen() == AppModel.Screen.BOOT) {
+            BootPage.Msg bootMsg = null;
+            if (msg instanceof AppMsg.Intent im) {
+                bootMsg = new BootPage.Msg.Intent(im.intent());
+            } else if (msg instanceof AppMsg.Tick tick) {
+                bootMsg = new BootPage.Msg.Tick(tick.nowMillis());
+            }
+
+            if (bootMsg != null) {
+                UpdateResult<BootPage.Model, BootPage.Cmd> result = bootPage.update(model.bootModel(), bootMsg);
+                List<AppCmd> commands = new ArrayList<>();
+                AppModel.Screen nextScreen = model.screen();
+
+                if (result.commands() != null) {
+                    for (BootPage.Cmd cmd : result.commands()) {
+                        if (cmd instanceof BootPage.Cmd.OpenStart) {
+                            nextScreen = AppModel.Screen.START;
+                        } else if (cmd instanceof BootPage.Cmd.OpenDiagnostics) {
+                            nextScreen = AppModel.Screen.DIAGNOSTICS;
+                        } else if (cmd instanceof BootPage.Cmd.Exit) {
+                            commands.add(new AppCmd.Exit());
+                        } else if (cmd instanceof BootPage.Cmd.PlaySound playSound) {
+                            commands.add(new AppCmd.PlaySound(playSound.resourcePath()));
+                        }
+                    }
+                }
+
+                appendScreenTransitionAudio(model.screen(), nextScreen, commands);
+                AppModel nextModel = new AppModel(nextScreen, result.model(), model.startModel(), model.gameModel(),
+                        model.diagnosticsModel(), model.currentLevel());
+                return new UpdateResult<>(nextModel, commands);
+            }
+            return new UpdateResult<>(model, List.of());
+        }
+
         if (model.screen() == AppModel.Screen.START) {
             StartPage.Msg startMsg = null;
             if (msg instanceof AppMsg.Intent im) {
@@ -74,8 +113,8 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                     }
                 }
                 appendScreenTransitionAudio(model.screen(), nextScreen, commands);
-                AppModel nextModel = new AppModel(nextScreen, result.model(), nextGameModel, model.diagnosticsModel(),
-                        model.currentLevel());
+                AppModel nextModel = new AppModel(nextScreen, model.bootModel(), result.model(), nextGameModel,
+                        model.diagnosticsModel(), model.currentLevel());
                 return new UpdateResult<>(nextModel, commands);
             }
             return new UpdateResult<>(model, List.of());
@@ -121,7 +160,7 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                     }
                 }
                 appendScreenTransitionAudio(model.screen(), nextScreen, commands);
-                AppModel nextModel = new AppModel(nextScreen, model.startModel(), nextGameModel,
+                AppModel nextModel = new AppModel(nextScreen, model.bootModel(), model.startModel(), nextGameModel,
                         model.diagnosticsModel(), nextCurrentLevel);
                 return new UpdateResult<>(nextModel, commands);
             }
@@ -150,8 +189,8 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                     }
                 }
                 appendScreenTransitionAudio(model.screen(), nextScreen, commands);
-                AppModel nextModel = new AppModel(nextScreen, model.startModel(), model.gameModel(), result.model(),
-                        model.currentLevel());
+                AppModel nextModel = new AppModel(nextScreen, model.bootModel(), model.startModel(),
+                        model.gameModel(), result.model(), model.currentLevel());
                 return new UpdateResult<>(nextModel, commands);
             }
             return new UpdateResult<>(model, List.of());
@@ -163,7 +202,9 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
     @Override
     public RenderFrame view(AppModel model, TerminalBuffer buffer, long nowMillis) {
         buffer.clear();
-        if (model.screen() == AppModel.Screen.START) {
+        if (model.screen() == AppModel.Screen.BOOT) {
+            return bootPage.view(model.bootModel(), buffer, nowMillis);
+        } else if (model.screen() == AppModel.Screen.START) {
             return startPage.view(model.startModel(), buffer, nowMillis);
         } else if (model.screen() == AppModel.Screen.GAME) {
             return gamePage.view(model.gameModel(), buffer, nowMillis);

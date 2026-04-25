@@ -62,7 +62,6 @@ public class AppCmdHandler implements CmdHandler<AppCmd, AppMsg> {
             }
         });
 
-        startLoopingMusic(TITLE_BGM_FIRST_MEET);
     }
 
     @Override
