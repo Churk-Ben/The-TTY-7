@@ -1,5 +1,5 @@
 package com.tty7.gl.ui.pages;
 
-public class GrubPage {
+public class BootPage {
 
 }

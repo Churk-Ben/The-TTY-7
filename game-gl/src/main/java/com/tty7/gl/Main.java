@@ -73,6 +73,8 @@ public class Main {
             fbWidth.set(width);
             fbHeight.set(height);
         });
+        glfwShowWindow(window);
+        glfwFocusWindow(window);
 
         LevelLoader levelLoader = new LevelLoader();
         List<Level> levels = levelLoader.loadRange(1, 10);
