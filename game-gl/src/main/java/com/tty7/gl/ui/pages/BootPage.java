@@ -24,7 +24,6 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
     private static final int ACCENT = 0x22CC22;
     private static final int WARN = 0xE3B341;
     private static final int SELECT_BG = 0x1A2A1A;
-    private static final int STORY_BG = 0x131A21;
     private static final int CURSOR = 0x22CC22;
 
     private static final String SFX_CURSOR_MOVE = "/assets/audio/sfx/cursor-move.mp3";
@@ -33,7 +32,6 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
 
     private static final long GRUB_TIMEOUT_MS = 6000L;
     private static final long LOG_LINE_INTERVAL_MS = 120L;
-    private static final long STORY_LINE_INTERVAL_MS = 1100L;
     private static final long SEQUENCE_COMPLETE_HOLD_MS = 900L;
 
     private static final int DEFAULT_ENTRY_INDEX = 0;

@@ -347,7 +347,7 @@ public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.
             int boxX = (cols - boxWidth) / 2;
             int boxY = (rows - boxHeight) / 2;
 
-            effects.add(new UiEffect.Dim(0.85f, boxX, boxY, boxWidth, boxHeight));
+            effects.add(new UiEffect.Dim("pause", 0.85f, boxX + 1, boxY + 1, boxWidth - 2, boxHeight - 2));
 
             PanelComponent.drawBoxWithTitle(buffer, boxX, boxY, boxWidth, boxHeight, title, 0x888888, BG, 0xFFFFFF);
             int[] pauseCursorInfo = PanelComponent.drawLeftAlignedOptions(

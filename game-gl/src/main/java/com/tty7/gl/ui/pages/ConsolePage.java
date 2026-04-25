@@ -18,7 +18,6 @@ import com.tty7.gl.utils.TextUtil;
 public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, ConsolePage.Cmd> {
     private static final int BG = 0x0D1117;
     private static final int PANEL_BG = BG;
-    private static final int STORY_BG = 0x131A21;
     private static final int FG = 0xCDD9E5;
     private static final int DIM_FG = 0x8B949E;
     private static final int ACCENT = 0x22CC22;
@@ -240,7 +239,8 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
             int pauseBoxX = (cols - pauseBoxWidth) / 2;
             int pauseBoxY = (rows - pauseBoxHeight) / 2;
 
-            effects.add(new UiEffect.Dim(0.85f, pauseBoxX, pauseBoxY, pauseBoxWidth, pauseBoxHeight));
+            effects.add(new UiEffect.Dim("pause", 0.85f, pauseBoxX + 1, pauseBoxY + 1, pauseBoxWidth - 2,
+                    pauseBoxHeight - 2));
             PanelComponent.drawBoxWithTitle(buffer, pauseBoxX, pauseBoxY, pauseBoxWidth, pauseBoxHeight, " Paused ",
                     BORDER, BG, HOVER());
             int[] pauseCursor = PanelComponent.drawLeftAlignedOptions(buffer, pauseBoxX, pauseBoxWidth, pauseBoxY + 2,

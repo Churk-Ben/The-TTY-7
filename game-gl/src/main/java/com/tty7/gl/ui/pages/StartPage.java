@@ -108,7 +108,7 @@ public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartP
     @Override
     public RenderFrame view(Model model, TerminalBuffer buffer, long nowMillis) {
         buffer.clear();
-        
+
         cmatrix.update(buffer.cols(), buffer.rows(), nowMillis);
         cmatrix.render(buffer);
 
@@ -127,13 +127,13 @@ public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartP
         for (String option : OPTIONS) {
             maxOptLen = Math.max(maxOptLen, TextUtil.getDisplayWidth(option));
         }
-        
+
         int boxWidth = maxOptLen + 12;
         int boxHeight = OPTIONS.length * 2 + 3;
-        
+
         int totalHeight = titleHeight + 4 + boxHeight + 4;
         int startY = Math.max(2, (rows - totalHeight) / 2);
-        
+
         int row = startY;
         if (titleArt != null) {
             for (String line : titleArt) {
@@ -145,7 +145,7 @@ public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartP
             int x = Math.max(0, (cols - TextUtil.getDisplayWidth(title)) / 2);
             buffer.print(x, row++, title, ACCENT, BG);
         }
-        
+
         row += 2;
         String info1 = "Display manager is ready.";
         String info2 = "User: root  Seat: tty7";
@@ -155,16 +155,17 @@ public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartP
         row += 2;
         int boxX = Math.max(0, (cols - boxWidth) / 2);
         int boxY = row;
-        
-        PanelComponent.drawBoxWithTitle(buffer, boxX, boxY, boxWidth, boxHeight, " Session ", BORDER, PANEL_BG, HOVER_TEXT);
-        
+
+        PanelComponent.drawBoxWithTitle(buffer, boxX, boxY, boxWidth, boxHeight, " Session ", BORDER, PANEL_BG,
+                HOVER_TEXT);
+
         int[] cursorInfo = PanelComponent.drawLeftAlignedOptions(buffer, boxX, boxWidth, boxY + 2,
                 OPTIONS, model.selectedIndex(), 2, 2, NORMAL_TEXT, HOVER_TEXT, PANEL_BG);
 
         int descRow = boxY + boxHeight + 1;
         String desc = DESCRIPTIONS[model.selectedIndex()];
         buffer.print(Math.max(0, (cols - TextUtil.getDisplayWidth(desc)) / 2), descRow, desc, WARN, BG);
-        
+
         String navHint = "Enter=select  Up/Down=navigate";
         int navX = Math.max(0, (cols - TextUtil.getDisplayWidth(navHint)) / 2);
         buffer.print(navX, rows - 2, navHint, DIM_FG(), BG);
@@ -178,7 +179,7 @@ public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartP
 
         return new RenderFrame(buffer, new CursorState(cursorInfo[0], cursorInfo[1], true, true, CURSOR), effects);
     }
-    
+
     private static int DIM_FG() {
         return 0x555555;
     }
@@ -202,16 +203,5 @@ public class StartPage implements Program<StartPage.Model, StartPage.Msg, StartP
         while (last >= 0 && lines.get(last).trim().isEmpty()) {
             lines.remove(last--);
         }
-    }
-
-    private static void printClipped(TerminalBuffer buffer, int x, int y, int width, String text, int fg, int bg) {
-        if (width <= 0 || y < 0 || y >= buffer.rows()) {
-            return;
-        }
-        String content = text == null ? "" : text;
-        while (TextUtil.getDisplayWidth(content) > width && !content.isEmpty()) {
-            content = content.substring(0, content.length() - 1);
-        }
-        buffer.print(x, y, content, fg, bg);
     }
 }

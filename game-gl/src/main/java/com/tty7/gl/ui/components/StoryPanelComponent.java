@@ -60,7 +60,7 @@ public final class StoryPanelComponent {
         int x = (cols - width) / 2;
         int y = rows - height - Math.max(2, rows / 10);
 
-        effects.add(new UiEffect.Dim(0.85f, x, y, width, height));
+        effects.add(new UiEffect.Dim("story", 0.85f, x + 1, y + 1, width - 2, height - 2));
 
         int borderColor = 0x555555;
         int bgColor = 0x131A21;

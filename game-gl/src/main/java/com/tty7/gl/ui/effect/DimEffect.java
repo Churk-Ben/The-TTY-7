@@ -6,7 +6,11 @@ import com.tty7.gl.renderer.effect.*;
 import com.tty7.gl.renderer.text.TextRenderer;
 
 public class DimEffect implements UiEffectRenderer<UiEffect.Dim> {
-    // 此特效还需要思考一下
+    private static final float FADE_SPEED = 5.0f; // opacity units per second
+
+    private float currentOpacity = 0f;
+    private UiEffect.Dim lastDimEffect = null;
+    private double lastTimeSeconds = -1;
 
     @Override
     public Class<UiEffect.Dim> effectType() {
@@ -15,9 +19,35 @@ public class DimEffect implements UiEffectRenderer<UiEffect.Dim> {
 
     @Override
     public void render(UiEffect.Dim dimEffect, UiEffectRenderContext context) {
-        if (dimEffect == null || dimEffect.opacity() <= 0f) {
+        double now = context.timeSeconds();
+        if (lastTimeSeconds < 0) {
+            lastTimeSeconds = now;
+        }
+        float dt = (float) (now - lastTimeSeconds);
+        lastTimeSeconds = now;
+
+        float targetOpacity = 0f;
+        if (dimEffect != null && dimEffect.targetOpacity() > 0f) {
+            targetOpacity = dimEffect.targetOpacity();
+            lastDimEffect = dimEffect;
+        }
+
+        if (currentOpacity < targetOpacity) {
+            currentOpacity = Math.min(targetOpacity, currentOpacity + FADE_SPEED * dt);
+        } else if (currentOpacity > targetOpacity) {
+            currentOpacity = Math.max(targetOpacity, currentOpacity - FADE_SPEED * dt);
+        }
+
+        if (currentOpacity <= 0.01f) {
+            lastDimEffect = null;
             return;
         }
+
+        UiEffect.Dim activeDim = (dimEffect != null && dimEffect.targetOpacity() > 0f) ? dimEffect : lastDimEffect;
+        if (activeDim == null) {
+            return;
+        }
+
         TextRenderer textRenderer = context.textRenderer();
         int viewportWidth = context.viewportWidth();
         int viewportHeight = context.viewportHeight();
@@ -25,7 +55,7 @@ public class DimEffect implements UiEffectRenderer<UiEffect.Dim> {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBegin(GL_QUADS);
-        glColor4f(0f, 0f, 0f, dimEffect.opacity());
+        glColor4f(0f, 0f, 0f, currentOpacity);
 
         float cellWidth = textRenderer.cellWidthPx();
         var frame = context.frame();
@@ -35,11 +65,19 @@ public class DimEffect implements UiEffectRenderer<UiEffect.Dim> {
         float marginX = textRenderer.gridOffsetXPx(cols);
         float marginY = textRenderer.gridOffsetYPx(rows);
 
-        if (dimEffect.excludeWidth() > 0 && dimEffect.excludeHeight() > 0) {
-            float exX = marginX + dimEffect.excludeX() * cellWidth;
-            float exY = marginY + dimEffect.excludeY() * cellHeight;
-            float exW = dimEffect.excludeWidth() * cellWidth;
-            float exH = dimEffect.excludeHeight() * cellHeight;
+        // Expand exclude area by 1 cell on all sides to cover the panel borders.
+        // This makes sure the bright borders of the overlay panel don't have dimming
+        // overlapping them.
+        int effectiveX = activeDim.excludeX() > 0 ? activeDim.excludeX() - 1 : 0;
+        int effectiveY = activeDim.excludeY() > 0 ? activeDim.excludeY() - 1 : 0;
+        int effectiveW = activeDim.excludeWidth() > 0 ? activeDim.excludeWidth() + 2 : 0;
+        int effectiveH = activeDim.excludeHeight() > 0 ? activeDim.excludeHeight() + 2 : 0;
+
+        if (effectiveW > 0 && effectiveH > 0) {
+            float exX = marginX + effectiveX * cellWidth;
+            float exY = marginY + effectiveY * cellHeight;
+            float exW = effectiveW * cellWidth;
+            float exH = effectiveH * cellHeight;
 
             glVertex2f(0f, 0f);
             glVertex2f(viewportWidth, 0f);

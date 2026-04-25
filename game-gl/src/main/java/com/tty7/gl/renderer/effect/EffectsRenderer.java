@@ -26,7 +26,7 @@ public class EffectsRenderer {
     }
 
     public void draw(RenderFrame frame, TextRenderer textRenderer, double timeSeconds) {
-        if (frame == null || frame.effects() == null || frame.effects().isEmpty()) {
+        if (frame == null) {
             return;
         }
 
@@ -46,7 +46,18 @@ public class EffectsRenderer {
                 viewportHeight,
                 timeSeconds);
 
-        Map<Class<? extends UiEffect>, UiEffect> mergedEffects = mergeEffects(frame.effects());
+        Map<Class<? extends UiEffect>, UiEffect> mergedEffects = mergeEffects(
+                frame.effects() != null ? frame.effects() : java.util.List.of());
+
+        // Notify DimEffect about cleanup if necessary
+        UiEffectRenderer<?> dimRenderer = renderers.get(UiEffect.Dim.class);
+        if (dimRenderer instanceof DimEffect d) {
+            // Force render even if not in frame so fade out animation can run
+            if (!mergedEffects.containsKey(UiEffect.Dim.class)) {
+                d.render(null, context);
+            }
+        }
+
         for (UiEffect effect : mergedEffects.values()) {
             render(effect, context);
         }

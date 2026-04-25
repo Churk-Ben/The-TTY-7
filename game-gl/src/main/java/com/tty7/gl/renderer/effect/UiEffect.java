@@ -27,14 +27,14 @@ public sealed interface UiEffect permits UiEffect.Crt, UiEffect.Glitch, UiEffect
         }
     }
 
-    record Dim(float opacity, int excludeX, int excludeY, int excludeWidth, int excludeHeight) implements UiEffect {
+    record Dim(String id, float targetOpacity, int excludeX, int excludeY, int excludeWidth, int excludeHeight) implements UiEffect {
         @Override
         public Dim merge(UiEffect other) {
-            if (!(other instanceof Dim(float opacity1, int x, int y, int width, int height)))
+            if (!(other instanceof Dim(String id1, float opacity1, int x, int y, int width, int height)))
                 return this;
-            if (this.opacity >= opacity1)
+            if (this.targetOpacity >= opacity1)
                 return this;
-            return new Dim(opacity1, x, y, width, height);
+            return new Dim(id1, opacity1, x, y, width, height);
         }
     }
 }
