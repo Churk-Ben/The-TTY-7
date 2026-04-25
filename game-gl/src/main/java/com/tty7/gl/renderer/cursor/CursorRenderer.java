@@ -59,7 +59,7 @@ public class CursorRenderer {
     }
 
     public void draw(RenderFrame frame, TextRenderer textRenderer, double timeSeconds) {
-        if (frame == null || !frame.cursorState().visible()) {
+        if (frame == null || frame.cursorState() == null || !frame.cursorState().visible()) {
             lastTimeSeconds = timeSeconds;
             return;
         }

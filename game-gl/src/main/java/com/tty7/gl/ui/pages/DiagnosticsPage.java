@@ -24,7 +24,7 @@ public class DiagnosticsPage implements Program<DiagnosticsPage.Model, Diagnosti
     private static final int CURSOR = 0x22CC22;
     private static final int NORMAL_TEXT = 0x888888;
     private static final int HOVER_TEXT = 0xFFFFFF;
-    private static final String[] OPTIONS = { "Test Render", "Test Font", "Exit Live" };
+    private static final String[] OPTIONS = { "Test Render", "Test Font", "Return To GRUB" };
 
     // 页面组件
     private final DisplayTestPattern displayTest = new DisplayTestPattern();
@@ -54,7 +54,7 @@ public class DiagnosticsPage implements Program<DiagnosticsPage.Model, Diagnosti
 
     // 页面命令
     public sealed interface Cmd {
-        record ReturnToStart() implements Cmd {
+        record ReturnToBoot() implements Cmd {
         }
 
         record PlaySound(String resourcePath) implements Cmd {
@@ -99,7 +99,7 @@ public class DiagnosticsPage implements Program<DiagnosticsPage.Model, Diagnosti
                         case 2 -> {
                             return new UpdateResult<>(
                                     model,
-                                    List.of(new Cmd.ReturnToStart(), new Cmd.PlaySound(SFX_CURSOR_MOVE)));
+                                    List.of(new Cmd.ReturnToBoot(), new Cmd.PlaySound(SFX_CURSOR_MOVE)));
                         }
                         default -> {
                             return new UpdateResult<>(
@@ -110,7 +110,7 @@ public class DiagnosticsPage implements Program<DiagnosticsPage.Model, Diagnosti
                 } else if (intent instanceof InputIntent.Cancel) {
                     return new UpdateResult<>(
                             model,
-                            List.of(new Cmd.ReturnToStart(), new Cmd.PlaySound(SFX_CURSOR_MOVE)));
+                            List.of(new Cmd.ReturnToBoot(), new Cmd.PlaySound(SFX_CURSOR_MOVE)));
                 }
             } else {
                 // 在测试中
@@ -143,8 +143,7 @@ public class DiagnosticsPage implements Program<DiagnosticsPage.Model, Diagnosti
 
                 int rows = buffer.rows();
                 int cols = buffer.cols();
-                String title = " Live ";
-                int startRow = rows / 4 + 4;
+                String title = " Live Environment ";
 
                 int maxOptLen = 0;
                 for (String opt : OPTIONS) {
@@ -153,7 +152,8 @@ public class DiagnosticsPage implements Program<DiagnosticsPage.Model, Diagnosti
                 int boxWidth = maxOptLen + 12;
                 int boxHeight = OPTIONS.length * 2 + 3;
                 int boxX = (cols - boxWidth) / 2;
-                int boxY = startRow - 2;
+                int boxY = (rows - boxHeight) / 2;
+                int startRow = boxY + 2;
 
                 PanelComponent.drawBoxWithTitle(
                         buffer,
@@ -173,7 +173,7 @@ public class DiagnosticsPage implements Program<DiagnosticsPage.Model, Diagnosti
 
                 UiEffect.Glitch glitch = glitchEffect.update(nowMillis);
                 List<UiEffect> effects = new java.util.ArrayList<>();
-                effects.add(new UiEffect.Crt(0.3f));
+                effects.add(new UiEffect.Crt(0.15f));
                 if (glitch != null) {
                     effects.add(glitch);
                 }

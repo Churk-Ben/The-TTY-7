@@ -4,6 +4,7 @@ import com.tty7.core.levels.Level;
 import com.tty7.gl.renderer.core.RenderFrame;
 import com.tty7.gl.renderer.core.TerminalBuffer;
 import com.tty7.gl.ui.pages.BootPage;
+import com.tty7.gl.ui.pages.ConsolePage;
 import com.tty7.gl.ui.pages.DiagnosticsPage;
 import com.tty7.gl.ui.pages.GamePage;
 import com.tty7.gl.ui.pages.StartPage;
@@ -19,6 +20,7 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
     private final BootPage bootPage;
     private final StartPage startPage;
     private final GamePage gamePage;
+    private final ConsolePage consolePage;
     private final DiagnosticsPage diagnosticsPage;
     private final Level initialLevel;
     private final Map<Integer, Level> levelById;
@@ -26,14 +28,15 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
     private static final String SFX_ACCEPT = "/assets/audio/sfx/accept.mp3";
     private static final String SFX_WRONG_ANSWER = "/assets/audio/sfx/wrong-answer.mp3";
 
-    public AppProgram(BootPage bootPage, StartPage startPage, GamePage gamePage, DiagnosticsPage diagnosticsPage,
-            List<Level> levels) {
+    public AppProgram(BootPage bootPage, StartPage startPage, GamePage gamePage, ConsolePage consolePage,
+            DiagnosticsPage diagnosticsPage, List<Level> levels) {
         if (levels == null || levels.isEmpty()) {
             throw new IllegalArgumentException("levels must not be empty");
         }
         this.bootPage = bootPage;
         this.startPage = startPage;
         this.gamePage = gamePage;
+        this.consolePage = consolePage;
         this.diagnosticsPage = diagnosticsPage;
         this.initialLevel = levels.stream().min((a, b) -> Integer.compare(a.id(), b.id())).orElseThrow();
         this.levelById = new HashMap<>();
@@ -77,8 +80,8 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                 }
 
                 appendScreenTransitionAudio(model.screen(), nextScreen, commands);
-                AppModel nextModel = new AppModel(nextScreen, result.model(), model.startModel(), model.gameModel(),
-                        model.diagnosticsModel(), model.currentLevel());
+                AppModel nextModel = new AppModel(nextScreen, result.model(), StartPage.Model.init(), model.gameModel(),
+                        model.consoleModel(), model.diagnosticsModel(), model.currentLevel());
                 return new UpdateResult<>(nextModel, commands);
             }
             return new UpdateResult<>(model, List.of());
@@ -95,26 +98,63 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                 List<AppCmd> commands = new ArrayList<>();
                 AppModel.Screen nextScreen = model.screen();
                 GamePage.Model nextGameModel = model.gameModel();
+                ConsolePage.Model nextConsoleModel = model.consoleModel();
+                BootPage.Model nextBootModel = model.bootModel();
+                StartPage.Model nextStartModel = result.model();
 
                 if (result.commands() != null) {
                     for (StartPage.Cmd cmd : result.commands()) {
-                        if (cmd instanceof StartPage.Cmd.StartGame) {
-                            nextScreen = AppModel.Screen.GAME;
-                            // reset game model start time
-                            nextGameModel = GamePage.Model.init(model.currentLevel(),
-                                    System.currentTimeMillis() / 1000);
-                        } else if (cmd instanceof StartPage.Cmd.OpenDiagnostics) {
-                            nextScreen = AppModel.Screen.DIAGNOSTICS;
-                        } else if (cmd instanceof StartPage.Cmd.Exit) {
-                            commands.add(new AppCmd.Exit());
+                        if (cmd instanceof StartPage.Cmd.Login) {
+                            nextScreen = AppModel.Screen.CONSOLE;
+                            nextConsoleModel = ConsolePage.Model.init();
+                        } else if (cmd instanceof StartPage.Cmd.Reboot) {
+                            nextScreen = AppModel.Screen.BOOT;
+                            nextBootModel = BootPage.Model.startReboot();
+                            nextStartModel = StartPage.Model.init();
+                        } else if (cmd instanceof StartPage.Cmd.PowerOff) {
+                            nextScreen = AppModel.Screen.BOOT;
+                            nextBootModel = BootPage.Model.startPowerOff();
+                            nextStartModel = StartPage.Model.init();
                         } else if (cmd instanceof StartPage.Cmd.PlaySound playSound) {
                             commands.add(new AppCmd.PlaySound(playSound.resourcePath()));
                         }
                     }
                 }
                 appendScreenTransitionAudio(model.screen(), nextScreen, commands);
-                AppModel nextModel = new AppModel(nextScreen, model.bootModel(), result.model(), nextGameModel,
-                        model.diagnosticsModel(), model.currentLevel());
+                AppModel nextModel = new AppModel(nextScreen, nextBootModel, nextStartModel, nextGameModel,
+                        nextConsoleModel, model.diagnosticsModel(), model.currentLevel());
+                return new UpdateResult<>(nextModel, commands);
+            }
+            return new UpdateResult<>(model, List.of());
+        }
+
+        if (model.screen() == AppModel.Screen.CONSOLE) {
+            ConsolePage.Msg consoleMsg = null;
+            if (msg instanceof AppMsg.Intent im) {
+                consoleMsg = new ConsolePage.Msg.Intent(im.intent());
+            }
+
+            if (consoleMsg != null) {
+                UpdateResult<ConsolePage.Model, ConsolePage.Cmd> result = consolePage.update(model.consoleModel(),
+                        consoleMsg);
+                List<AppCmd> commands = new ArrayList<>();
+                AppModel.Screen nextScreen = model.screen();
+                StartPage.Model nextStartModel = model.startModel();
+
+                if (result.commands() != null) {
+                    for (ConsolePage.Cmd cmd : result.commands()) {
+                        if (cmd instanceof ConsolePage.Cmd.ReturnToLogin) {
+                            nextScreen = AppModel.Screen.START;
+                            nextStartModel = StartPage.Model.init();
+                        } else if (cmd instanceof ConsolePage.Cmd.PlaySound playSound) {
+                            commands.add(new AppCmd.PlaySound(playSound.resourcePath()));
+                        }
+                    }
+                }
+
+                appendScreenTransitionAudio(model.screen(), nextScreen, commands);
+                AppModel nextModel = new AppModel(nextScreen, model.bootModel(), nextStartModel, model.gameModel(),
+                        result.model(), model.diagnosticsModel(), model.currentLevel());
                 return new UpdateResult<>(nextModel, commands);
             }
             return new UpdateResult<>(model, List.of());
@@ -161,7 +201,7 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
                 }
                 appendScreenTransitionAudio(model.screen(), nextScreen, commands);
                 AppModel nextModel = new AppModel(nextScreen, model.bootModel(), model.startModel(), nextGameModel,
-                        model.diagnosticsModel(), nextCurrentLevel);
+                        model.consoleModel(), model.diagnosticsModel(), nextCurrentLevel);
                 return new UpdateResult<>(nextModel, commands);
             }
             return new UpdateResult<>(model, List.of());
@@ -181,16 +221,18 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
 
                 if (result.commands() != null) {
                     for (DiagnosticsPage.Cmd cmd : result.commands()) {
-                        if (cmd instanceof DiagnosticsPage.Cmd.ReturnToStart) {
-                            nextScreen = AppModel.Screen.START;
+                        if (cmd instanceof DiagnosticsPage.Cmd.ReturnToBoot) {
+                            nextScreen = AppModel.Screen.BOOT;
                         } else if (cmd instanceof DiagnosticsPage.Cmd.PlaySound playSound) {
                             commands.add(new AppCmd.PlaySound(playSound.resourcePath()));
                         }
                     }
                 }
                 appendScreenTransitionAudio(model.screen(), nextScreen, commands);
-                AppModel nextModel = new AppModel(nextScreen, model.bootModel(), model.startModel(),
-                        model.gameModel(), result.model(), model.currentLevel());
+                BootPage.Model nextBootModel = nextScreen == AppModel.Screen.BOOT ? BootPage.Model.returnToGrub()
+                        : model.bootModel();
+                AppModel nextModel = new AppModel(nextScreen, nextBootModel, model.startModel(), model.gameModel(),
+                        model.consoleModel(), result.model(), model.currentLevel());
                 return new UpdateResult<>(nextModel, commands);
             }
             return new UpdateResult<>(model, List.of());
@@ -206,6 +248,8 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
             return bootPage.view(model.bootModel(), buffer, nowMillis);
         } else if (model.screen() == AppModel.Screen.START) {
             return startPage.view(model.startModel(), buffer, nowMillis);
+        } else if (model.screen() == AppModel.Screen.CONSOLE) {
+            return consolePage.view(model.consoleModel(), buffer, nowMillis);
         } else if (model.screen() == AppModel.Screen.GAME) {
             return gamePage.view(model.gameModel(), buffer, nowMillis);
         } else {
@@ -226,6 +270,6 @@ public class AppProgram implements Program<AppModel, AppMsg, AppCmd> {
     }
 
     private boolean shouldPlayLoopingMusic(AppModel.Screen screen) {
-        return screen == AppModel.Screen.START || screen == AppModel.Screen.DIAGNOSTICS;
+        return screen == AppModel.Screen.BOOT || screen == AppModel.Screen.START || screen == AppModel.Screen.DIAGNOSTICS;
     }
 }

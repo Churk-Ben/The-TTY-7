@@ -14,9 +14,9 @@ public class CMatrixComponent {
     private final float charUpdateProbability = 0.1f;
     private final int initialDropOffset = 10;
 
-    private final int headColor = 0x55CC55;
-    private final int bodyColor = 0x008800;
-    private final int tailColor = 0x004400;
+    private final int headColor = 0x228822;
+    private final int bodyColor = 0x005500;
+    private final int tailColor = 0x002200;
     private final int tailStartIndex = 3;
 
     private final String charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

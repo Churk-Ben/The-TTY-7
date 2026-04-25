@@ -26,6 +26,7 @@ import com.tty7.gl.ui.app.AppModel;
 import com.tty7.gl.ui.app.AppMsg;
 import com.tty7.gl.ui.app.AppProgram;
 import com.tty7.gl.ui.pages.BootPage;
+import com.tty7.gl.ui.pages.ConsolePage;
 import com.tty7.gl.ui.pages.DiagnosticsPage;
 import com.tty7.gl.ui.pages.GamePage;
 import com.tty7.gl.ui.pages.StartPage;
@@ -85,8 +86,9 @@ public class Main {
         BootPage bootPage = new BootPage();
         StartPage startPage = new StartPage();
         GamePage gamePage = new GamePage(new CompletionService(registry));
+        ConsolePage consolePage = new ConsolePage();
         DiagnosticsPage diagnosticsPage = new DiagnosticsPage();
-        AppProgram program = new AppProgram(bootPage, startPage, gamePage, diagnosticsPage, levels);
+        AppProgram program = new AppProgram(bootPage, startPage, gamePage, consolePage, diagnosticsPage, levels);
         AppCmdHandler cmdHandler = new AppCmdHandler(service);
 
         TeaRuntime<AppModel, AppMsg, AppCmd> uiRuntime = new TeaRuntime<>(program, cmdHandler);
