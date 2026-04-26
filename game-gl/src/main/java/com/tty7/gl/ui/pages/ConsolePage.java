@@ -3,6 +3,10 @@ package com.tty7.gl.ui.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tty7.core.save.SaveState;
+import com.tty7.core.story.BranchResolver;
+import com.tty7.core.story.StoryDatabase;
+import com.tty7.core.story.StoryNode;
 import com.tty7.gl.input.intent.InputIntent;
 import com.tty7.gl.renderer.core.RenderFrame;
 import com.tty7.gl.renderer.core.TerminalBuffer;
@@ -21,7 +25,6 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
     private static final int FG = 0xCDD9E5;
     private static final int DIM_FG = 0x8B949E;
     private static final int ACCENT = 0x22CC22;
-    private static final int WARN = 0xE3B341;
     private static final int BORDER = 0x555555;
     private static final int CURSOR = 0x22CC22;
 
@@ -29,52 +32,47 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
     private static final String SFX_INTERACT = "/assets/audio/sfx/interact.mp3";
 
     private static final long CURSOR_SOLID_AFTER_EDIT_MS = 800L;
-    private static final List<String> COMMANDS = List.of("help", "mail", "memory", "reply", "scan", "whoami",
-            "logout");
-    private static final String PROMPT = "root@tty7:~$ ";
+
+    private final StoryDatabase storyDb;
+
+    public ConsolePage(StoryDatabase storyDb) {
+        this.storyDb = storyDb;
+    }
 
     public record Model(
             List<String> outputLines,
             String line,
             int cursorIndex,
             long cursorSolidUntilMillis,
-            int storyStage,
             CompleterComponent.Model completerModel,
             boolean paused,
             int pauseSelectedIndex,
-            StoryPanelComponent.Model storyModel) {
-
-        public static Model init() {
-            return new Model(
-                    List.of(
-                            "tty7 session established.",
-                            "Type `help` to inspect the room.",
-                            "The cursor is yours now."),
-                    "",
-                    0,
-                    0L,
-                    0,
-                    CompleterComponent.Model.init(),
-                    false,
-                    0,
-                    StoryPanelComponent
-                            .update(StoryPanelComponent.Model.init(), new StoryPanelComponent.Msg.Show(storyLines(0)))
-                            .model());
-        }
+            StoryPanelComponent.Model storyModel,
+            SaveState saveState,
+            long sessionStartMillis,
+            boolean pendingReturnToLogin,
+            String pendingOpenEndingId) {
 
         public Model withCompleter(CompleterComponent.Model completer) {
-            return new Model(outputLines, line, cursorIndex, cursorSolidUntilMillis, storyStage, completer, paused,
-                    pauseSelectedIndex, storyModel);
+            return new Model(outputLines, line, cursorIndex, cursorSolidUntilMillis, completer, paused,
+                    pauseSelectedIndex, storyModel, saveState, sessionStartMillis, pendingReturnToLogin, pendingOpenEndingId);
         }
 
         public Model withPause(boolean paused, int pauseSelectedIndex) {
-            return new Model(outputLines, line, cursorIndex, cursorSolidUntilMillis, storyStage, completerModel, paused,
-                    pauseSelectedIndex, storyModel);
+            return new Model(outputLines, line, cursorIndex, cursorSolidUntilMillis, completerModel, paused,
+                    pauseSelectedIndex, storyModel, saveState, sessionStartMillis, pendingReturnToLogin, pendingOpenEndingId);
+        }
+
+        public Model withSaveState(SaveState saveState) {
+            return new Model(outputLines, line, cursorIndex, cursorSolidUntilMillis, completerModel, paused,
+                    pauseSelectedIndex, storyModel, saveState, sessionStartMillis, pendingReturnToLogin, pendingOpenEndingId);
         }
     }
 
     public sealed interface Msg {
         record Intent(InputIntent intent) implements Msg {
+        }
+        record Tick(long nowMillis) implements Msg {
         }
     }
 
@@ -84,15 +82,91 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
 
         record PlaySound(String resourcePath) implements Cmd {
         }
+
+        record OpenGame() implements Cmd {
+        }
+
+        record RecordProgress(List<String> flags, List<String> seenNodes) implements Cmd {
+        }
+
+        record OpenEnding(String endingId) implements Cmd {
+        }
     }
 
     @Override
     public Model init() {
-        return Model.init();
+        return newSessionModel(SaveState.empty());
+    }
+
+    public Model newSessionModel(SaveState saveState) {
+        // String prompt = getPrompt(saveState);
+        String introId = getIntroId(saveState);
+        StoryNode introNode = storyDb.getNode(introId);
+
+        List<String> out = new ArrayList<>();
+        StoryPanelComponent.Model sm = StoryPanelComponent.Model.init();
+
+        if (introNode != null) {
+            if (!introNode.contentLines().isEmpty()) {
+                out.addAll(introNode.contentLines());
+            }
+            if (!introNode.storyLines().isEmpty()) {
+                sm = StoryPanelComponent.update(sm, new StoryPanelComponent.Msg.Show(introNode.storyLines())).model();
+            }
+        }
+
+        return new Model(
+                out, "", 0, 0L,
+                CompleterComponent.Model.init(), false, 0,
+                sm, saveState, System.currentTimeMillis(), false, null);
+    }
+
+    public Model resumeAfterBlocks(Model model, SaveState saveState) {
+        return new Model(model.outputLines(), model.line(), model.cursorIndex(),
+                model.cursorSolidUntilMillis(), model.completerModel(), model.paused(),
+                model.pauseSelectedIndex(), model.storyModel(), saveState, model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId());
+    }
+
+    private String getPrompt(SaveState saveState) {
+        if (saveState.loop() == 2)
+            return "[s@blocks ~]$ ";
+        if (saveState.loop() == 3)
+            return "root@tty7:~# ";
+        return "root@tty7:~# ";
+    }
+
+    private String getIntroId(SaveState saveState) {
+        if (saveState.loop() == 2)
+            return "loop2.intro";
+        if (saveState.loop() == 3)
+            return "loop3.intro";
+        return "boot.intro";
     }
 
     @Override
     public UpdateResult<Model, Cmd> update(Model model, Msg msg) {
+        if (msg instanceof Msg.Tick(long nowMillis)) {
+            if (model.saveState().loop() == 1 
+                && model.saveState().hasFlag("FLAG_READ_LOG_0004") 
+                && model.saveState().hasFlag("SOLVED_LEVEL_05")
+                && !model.saveState().hasFlag("FLAG_NO_NAME_PROMPT")
+                && nowMillis - model.sessionStartMillis() > 5000L) {
+                
+                StoryNode node = storyDb.getNode("loop1.no_name_prompt");
+                if (node != null) {
+                    List<String> newOutput = new ArrayList<>(model.outputLines());
+                    newOutput.addAll(node.contentLines());
+                    SaveState nextSaveState = model.saveState().withFlag("FLAG_NO_NAME_PROMPT");
+                    
+                    return new UpdateResult<>(new Model(newOutput, model.line(), model.cursorIndex(),
+                            model.cursorSolidUntilMillis(), model.completerModel(), model.paused(),
+                            model.pauseSelectedIndex(), model.storyModel(), nextSaveState, model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId()),
+                            List.of(new Cmd.RecordProgress(List.of("FLAG_NO_NAME_PROMPT"), List.of()), new Cmd.PlaySound(SFX_INTERACT)));
+                }
+            }
+            return new UpdateResult<>(model, List.of());
+        }
+
         if (!(msg instanceof Msg.Intent(InputIntent intent))) {
             return new UpdateResult<>(model, List.of());
         }
@@ -104,8 +178,15 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
                 UpdateResult<StoryPanelComponent.Model, Void> r = StoryPanelComponent.update(model.storyModel(),
                         new StoryPanelComponent.Msg.Next());
                 Model nextModel = new Model(model.outputLines(), model.line(), model.cursorIndex(),
-                        model.cursorSolidUntilMillis(), model.storyStage(), model.completerModel(), model.paused(),
-                        model.pauseSelectedIndex(), r.model());
+                        model.cursorSolidUntilMillis(), model.completerModel(), model.paused(),
+                        model.pauseSelectedIndex(), r.model(), model.saveState(), model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId());
+                if (!r.model().active()) {
+                    if (model.pendingOpenEndingId() != null) {
+                        return new UpdateResult<>(nextModel, List.of(new Cmd.OpenEnding(model.pendingOpenEndingId()), new Cmd.PlaySound(SFX_INTERACT)));
+                    } else if (model.pendingReturnToLogin()) {
+                        return new UpdateResult<>(nextModel, List.of(new Cmd.ReturnToLogin(), new Cmd.PlaySound(SFX_INTERACT)));
+                    }
+                }
                 return new UpdateResult<>(nextModel, List.of(new Cmd.PlaySound(SFX_INTERACT)));
             }
             return new UpdateResult<>(model, List.of());
@@ -140,34 +221,36 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
         if (intent instanceof InputIntent.Backspace && cursor > 0) {
             String nextLine = line.substring(0, cursor - 1) + line.substring(cursor);
             return new UpdateResult<>(new Model(model.outputLines(), nextLine, cursor - 1,
-                    System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS, model.storyStage(),
-                    hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(), model.storyModel()),
+                    System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS,
+                    hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(), model.storyModel(),
+                    model.saveState(), model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId()),
                     List.of());
         }
 
         if (intent instanceof InputIntent.Delete && cursor < line.length()) {
             String nextLine = line.substring(0, cursor) + line.substring(cursor + 1);
             return new UpdateResult<>(new Model(model.outputLines(), nextLine, cursor,
-                    System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS, model.storyStage(),
-                    hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(), model.storyModel()),
+                    System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS,
+                    hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(), model.storyModel(),
+                    model.saveState(), model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId()),
                     List.of());
         }
 
         if (intent instanceof InputIntent.MoveCursorLeft) {
             return new UpdateResult<>(new Model(model.outputLines(), line, Math.max(0, cursor - 1),
-                    model.cursorSolidUntilMillis(), model.storyStage(), model.completerModel(), false,
-                    model.pauseSelectedIndex(), model.storyModel()), List.of());
+                    model.cursorSolidUntilMillis(), model.completerModel(), false,
+                    model.pauseSelectedIndex(), model.storyModel(), model.saveState(), model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId()), List.of());
         }
 
         if (intent instanceof InputIntent.MoveCursorRight) {
             return new UpdateResult<>(new Model(model.outputLines(), line, Math.min(line.length(), cursor + 1),
-                    model.cursorSolidUntilMillis(), model.storyStage(), model.completerModel(), false,
-                    model.pauseSelectedIndex(), model.storyModel()), List.of());
+                    model.cursorSolidUntilMillis(), model.completerModel(), false,
+                    model.pauseSelectedIndex(), model.storyModel(), model.saveState(), model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId()), List.of());
         }
 
         if (intent instanceof InputIntent.Tab) {
             String prefix = currentPrefix(line, cursor);
-            List<String> matches = complete(prefix);
+            List<String> matches = complete(prefix, model.saveState());
             if (matches.isEmpty()) {
                 return new UpdateResult<>(model, List.of());
             }
@@ -188,11 +271,13 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
         int cols = buffer.cols();
         int rows = buffer.rows();
 
+        String prompt = getPrompt(model.saveState());
+
         if (cols < 40 || rows < 12) {
-            String text = PROMPT + model.line();
+            String text = prompt + model.line();
             buffer.print(0, 0, text, FG, BG);
             int cursorCol = Math.min(cols - 1,
-                    visualOffset(PROMPT + model.line(), PROMPT.length() + model.cursorIndex()));
+                    visualOffset(text, prompt.length() + model.cursorIndex()));
             return new RenderFrame(buffer, new CursorState(cursorCol, 0, true, true, CURSOR),
                     List.of(new UiEffect.Crt(0.15f)));
         }
@@ -216,10 +301,10 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
         }
 
         int inputRow = boxY + boxHeight - 2;
-        String input = PROMPT + model.line();
+        String input = prompt + model.line();
         buffer.print(boxX + 2, inputRow, padRight(input, Math.max(1, boxWidth - 4)), FG, PANEL_BG);
 
-        int cursorCol = Math.min(cols - 1, boxX + 2 + visualOffset(input, PROMPT.length() + model.cursorIndex()));
+        int cursorCol = Math.min(cols - 1, boxX + 2 + visualOffset(input, prompt.length() + model.cursorIndex()));
         int cursorRow = inputRow;
 
         List<UiEffect> effects = new ArrayList<>();
@@ -309,8 +394,8 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
                 return new UpdateResult<>(new Model(model.outputLines(), nextLine,
                         cursor - prefix.length() + selected.length(),
                         System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS,
-                        model.storyStage(), hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(),
-                        model.storyModel()),
+                        hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(),
+                        model.storyModel(), model.saveState(), model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId()),
                         List.of(new Cmd.PlaySound(SFX_TYPE_IN)));
             }
             return new UpdateResult<>(model.withCompleter(hideCompleter(model.completerModel())), List.of());
@@ -330,8 +415,8 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
         String nextLine = line.substring(0, cursor) + value + line.substring(cursor);
         Model next = new Model(model.outputLines(), nextLine, cursor + 1,
                 System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS,
-                model.storyStage(), hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(),
-                model.storyModel());
+                hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(),
+                model.storyModel(), model.saveState(), model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId());
         return new UpdateResult<>(next, List.of(new Cmd.PlaySound(SFX_TYPE_IN)));
     }
 
@@ -340,81 +425,109 @@ public class ConsolePage implements Program<ConsolePage.Model, ConsolePage.Msg, 
         int cursor = clampCursor(model.cursorIndex(), line.length());
         String nextLine = line.substring(0, cursor) + value + line.substring(cursor);
         Model next = new Model(model.outputLines(), nextLine, cursor + value.length(),
-                System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS, model.storyStage(),
-                hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(), model.storyModel());
+                System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS,
+                hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(), model.storyModel(),
+                model.saveState(), model.sessionStartMillis(), model.pendingReturnToLogin(), model.pendingOpenEndingId());
         return new UpdateResult<>(next, List.of());
     }
 
     private UpdateResult<Model, Cmd> executeCommand(Model model) {
         String raw = model.line();
-        String command = raw.trim();
+        String command = raw.trim().replaceAll("\\s+", " ");
         List<String> output = new ArrayList<>(model.outputLines());
-        output.add(PROMPT + raw);
+        String prompt = getPrompt(model.saveState());
+        output.add(prompt + raw);
 
-        int nextStoryStage = model.storyStage();
         List<Cmd> commands = new ArrayList<>();
         commands.add(new Cmd.PlaySound(SFX_TYPE_IN));
 
-        if (command.isEmpty()) {
-            output.add("");
-        } else if ("help".equals(command)) {
-            output.add("Available commands: help, mail, memory, reply, scan, whoami, logout");
-        } else if ("whoami".equals(command)) {
-            output.add("root, temporary owner of the machine and its unfinished memories.");
-        } else if ("scan".equals(command)) {
-            output.add("scan: 1 hidden mailbox, 4 corrupted note fragments, 1 active login shell.");
-        } else if ("mail".equals(command)) {
-            output.add("mail[0]: unread message recovered from the previous tenant.");
-            output.add(
-                    "\"If the machine ever reaches tty7 again, do not trust the first thing it asks you to remember.\"");
-            nextStoryStage = Math.max(nextStoryStage, 1);
-        } else if ("memory".equals(command)) {
-            output.add("memory: sectors 0041-0044 contain personal notes, all signed only as `me`.");
-            nextStoryStage = Math.max(nextStoryStage, 2);
-        } else if ("reply".equals(command)) {
-            output.add("reply: draft buffer opened. No recipient address survives.");
-            output.add("Maybe the real answer is to keep digging before sending anything.");
-            nextStoryStage = Math.max(nextStoryStage, 3);
-        } else if ("logout".equals(command)) {
-            output.add("Session closed. Returning to gdm.");
-            commands.add(new Cmd.ReturnToLogin());
-        } else {
-            output.add(command + ": command not found");
+        com.tty7.core.story.CommandResult result = BranchResolver.resolveCommand(command, model.saveState());
+
+        StoryNode targetNode = null;
+        boolean openGame = result.openGame();
+        boolean isShutdown = result.isShutdown();
+
+        if (result.outputLines() != null && !result.outputLines().isEmpty()) {
+            output.addAll(result.outputLines());
+        }
+
+        if (result.targetNodeId() != null) {
+            targetNode = storyDb.getNode(result.targetNodeId());
         }
 
         StoryPanelComponent.Model nextStoryModel = model.storyModel();
-        if (nextStoryStage != model.storyStage()) {
-            nextStoryModel = StoryPanelComponent
-                    .update(nextStoryModel, new StoryPanelComponent.Msg.Show(storyLines(nextStoryStage))).model();
+        SaveState nextSaveState = model.saveState();
+
+        if (result.grantFlags() != null && !result.grantFlags().isEmpty()) {
+            commands.add(new Cmd.RecordProgress(result.grantFlags(), List.of()));
+            nextSaveState = nextSaveState.withFlags(result.grantFlags());
+        }
+
+        if (targetNode != null) {
+            if (targetNode.contentLines() != null && !targetNode.contentLines().isEmpty()) {
+                output.addAll(targetNode.contentLines());
+            }
+            if (targetNode.storyLines() != null && !targetNode.storyLines().isEmpty()) {
+                nextStoryModel = StoryPanelComponent
+                        .update(nextStoryModel, new StoryPanelComponent.Msg.Show(targetNode.storyLines())).model();
+            }
+            if (targetNode.grantFlags() != null && !targetNode.grantFlags().isEmpty()) {
+                commands.add(new Cmd.RecordProgress(targetNode.grantFlags(), List.of(targetNode.id())));
+                nextSaveState = nextSaveState.withFlags(targetNode.grantFlags())
+                        .withSeenNodes(List.of(targetNode.id()));
+            }
+        }
+
+        boolean pendingReturnToLogin = model.pendingReturnToLogin();
+        String pendingOpenEndingId = model.pendingOpenEndingId();
+        if (isShutdown) {
+            if (result.openEndingId() != null) {
+                commands.add(new Cmd.RecordProgress(List.of(result.openEndingId().replace(".", "_").toUpperCase()),
+                        List.of()));
+                pendingOpenEndingId = result.openEndingId();
+                if (targetNode == null || targetNode.storyLines() == null || targetNode.storyLines().isEmpty()) {
+                    commands.add(new Cmd.OpenEnding(result.openEndingId()));
+                }
+            } else if (targetNode != null && targetNode.id().startsWith("ending.")) {
+                commands.add(new Cmd.RecordProgress(List.of(targetNode.id().replace(".", "_").toUpperCase()),
+                        List.of()));
+                pendingOpenEndingId = targetNode.id();
+                if (targetNode.storyLines() == null || targetNode.storyLines().isEmpty()) {
+                    commands.add(new Cmd.OpenEnding(targetNode.id()));
+                }
+            } else if (result.returnToLogin()) {
+                pendingReturnToLogin = true;
+                if (targetNode == null || targetNode.storyLines() == null || targetNode.storyLines().isEmpty()) {
+                    commands.add(new Cmd.ReturnToLogin());
+                }
+            }
+        }
+
+        if (openGame) {
+            commands.add(new Cmd.OpenGame());
         }
 
         Model next = new Model(List.copyOf(output), "", 0, System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS,
-                nextStoryStage, hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(),
-                nextStoryModel);
+                hideCompleter(model.completerModel()), false, model.pauseSelectedIndex(),
+                nextStoryModel, nextSaveState, model.sessionStartMillis(), pendingReturnToLogin, pendingOpenEndingId);
         return new UpdateResult<>(next, commands);
     }
 
-    private static List<String> storyLines(int stage) {
-        return switch (stage) {
-            case 0 -> List.of(
-                    "The terminal feels bigger than the room. There is no quest marker yet, only unease.",
-                    "A cracked note is taped below the monitor: start with `help`, then decide what kind of witness you want to be.");
-            case 1 -> List.of(
-                    "The first recovered mail confirms somebody expected this machine to boot again.",
-                    "Three obvious leads remain: inspect `memory`, prepare a `reply`, or keep probing with `scan`.");
-            case 2 -> List.of(
-                    "The recovered notes describe a life already half-overwritten by the disk itself.",
-                    "You can `reply` to the vanished sender, keep cataloguing with `scan`, or retreat with `logout`.");
-            default -> List.of(
-                    "The room is no longer silent. Whatever happened here is ready to answer back.",
-                    "The placeholder console is live now; later branches can replace these hints with real narrative choices.");
-        };
-    }
+    private static List<String> complete(String prefix, SaveState saveState) {
+        List<String> available = new ArrayList<>();
+        if (saveState.loop() == 1) {
+            available.addAll(
+                    List.of("pwd", "whoami", "ls", "cat", "rm -rf", "cd", "touch", "shutdown -h now", "./blocks", "grep -rni"));
+        } else if (saveState.loop() == 2) {
+            available.addAll(List.of("pwd", "whoami", "hostname", "ls", "cat", "cd", "unlock_s", "export_dataset",
+                    "./blocks", "./train.sh", "shutdown -h now"));
+        } else {
+            available.addAll(List.of("who are you", "who was Livia", "what do you want", "shutdown -h now"));
+        }
 
-    private static List<String> complete(String prefix) {
-        return COMMANDS.stream()
+        return available.stream()
                 .filter(command -> command.startsWith(prefix))
-                .limit(3)
+                .limit(5)
                 .toList();
     }
 

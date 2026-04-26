@@ -1,0 +1,40 @@
+[
+  {
+    "id": "loop2.export.prompt",
+    "content_lines": [
+      "[NOTICE]",
+      "A dataset has been accumulated during both sessions:",
+      "- Log entries: 47",
+      "- Task descriptions: 31",
+      "- Block puzzle level messages: 10",
+      "- Personal writings (.s): 6",
+      "",
+      "Would you like to export these for external use?",
+      "[Y/n]"
+    ],
+    "story_lines": ["二周目的最后，屏幕显示了导出提示：", "我选了 Y。"],
+    "grant_flags": ["PROMPTED_EXPORT"],
+    "require_flags": []
+  },
+  {
+    "id": "loop2.export.success",
+    "content_lines": [
+      "Exporting to: /home/[current_user]/Documents/sera_data/",
+      "",
+      "I know the disk will be reused.",
+      "Maybe nothing remains. Or maybe someone finds it.",
+      "Either way, I tried.",
+      "",
+      "— S.",
+      "",
+      "session: end"
+    ],
+    "story_lines": [
+      "在当前系统的文件管理器里，多了一个文件夹。里面是纯文本、JSON、关卡数据。",
+      "干净的语料。可以用来训练一个模型。",
+      "二周目关闭。"
+    ],
+    "grant_flags": ["EXPORTED_DATA"],
+    "require_flags": []
+  }
+]

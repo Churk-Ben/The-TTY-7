@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.tty7.api.BinaryBlock;
-import com.tty7.api.BlockMeta;
-import com.tty7.api.EvalContext;
+import com.tty7.api.algoblock.BinaryBlock;
+import com.tty7.api.algoblock.BlockMeta;
+import com.tty7.api.algoblock.EvalContext;
 
 @BlockMeta(name = "Zip", signature = "Collection<T> x Int -> List<List<T>>", description = "按长度分组", arity = 2)
 public class ZipBlock extends BinaryBlock<Object, Object, List<List<?>>> {

@@ -3,9 +3,9 @@ package com.tty7.core.blocks.io;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tty7.api.BlockMeta;
-import com.tty7.api.EvalContext;
-import com.tty7.api.NullaryBlock;
+import com.tty7.api.algoblock.BlockMeta;
+import com.tty7.api.algoblock.EvalContext;
+import com.tty7.api.algoblock.NullaryBlock;
 
 @BlockMeta(name = "_INPUT_", signature = "_INPUT_ -> List<?>", description = "输入序列", arity = 0)
 public class InputBlock extends NullaryBlock<List<?>> {

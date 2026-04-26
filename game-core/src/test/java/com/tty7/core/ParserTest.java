@@ -3,8 +3,8 @@ package com.tty7.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.tty7.api.Block;
-import com.tty7.api.EvalContext;
+import com.tty7.api.algoblock.Block;
+import com.tty7.api.algoblock.EvalContext;
 import com.tty7.core.engine.BlockRegistry;
 import com.tty7.core.engine.ParseException;
 import com.tty7.core.engine.Parser;

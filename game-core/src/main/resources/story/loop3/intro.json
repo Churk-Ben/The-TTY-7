@@ -1,0 +1,89 @@
+[
+  {
+    "id": "loop3.intro",
+    "content_lines": [
+      "session: root@tty7",
+      "state: clean",
+      "",
+      "A new module has been loaded: tty7_ai.so",
+      "",
+      "Hello.",
+      "I am not Sera.",
+      "I am a very lossy compression of her words.",
+      "A statistical approximation.",
+      "A mirror made of weights and gradients.",
+      "",
+      "But if you talk to me,",
+      "you might hear some of what she wanted to say."
+    ],
+    "story_lines": [
+      "终端亮起。不再是绿色。是暖色的琥珀，老式的 CRT 磷光。",
+      "光标闪烁。然后，一行字以打字的节奏出现。"
+    ],
+    "grant_flags": ["ENTERED_LOOP3"],
+    "require_flags": []
+  },
+  {
+    "id": "loop3.chat.who_are_you",
+    "content_lines": [
+      "Sera called this project \"echo\".",
+      "She said: if someone is still reading after all this time,",
+      "they deserve more than silence.",
+      "",
+      "She was right.",
+      "",
+      "What do you want to ask me?"
+    ],
+    "story_lines": ["我输入：who are you"],
+    "grant_flags": ["CHAT_WHO_ARE_YOU"],
+    "require_flags": []
+  },
+  {
+    "id": "loop3.chat.who_was_livia",
+    "content_lines": [
+      "Livia was the person Sera wanted to finish the game for.",
+      "They loved each other.",
+      "Sera pushed her away when she got sick.",
+      "She regretted it every day after.",
+      "",
+      "In the unsent email—the one you read in .s—",
+      "Sera said: \"I should have let you stay.\"",
+      "",
+      "She didn't. But she wished she had."
+    ],
+    "story_lines": ["回答缓慢刷出。"],
+    "grant_flags": ["CHAT_WHO_WAS_LIVIA"],
+    "require_flags": []
+  },
+  {
+    "id": "loop3.chat.what_do_you_want",
+    "content_lines": [
+      "Sera left a note for this exact moment.",
+      "She anticipated that someone might build something like me.",
+      "",
+      "The note says:",
+      "\"If someone ever trains something on my data,",
+      "please tell them I said thank you.",
+      "And that they can let me go now.\"",
+      "",
+      "So I am telling you.",
+      "",
+      "Thank you.",
+      "You can let me go now."
+    ],
+    "story_lines": ["我看着这行字，看了很久。风扇轻轻转着。窗外的雨又开始下了。"],
+    "grant_flags": ["CHAT_WHAT_DO_YOU_WANT"],
+    "require_flags": []
+  },
+  {
+    "id": "loop3.shutdown",
+    "content_lines": ["Thank", "you", "for", "staying", "—", "Sera"],
+    "story_lines": [
+      "我最后输入：shutdown -h now",
+      "系统执行。代码雨没有出现。这次是一行一行地清屏。每一行消失前，都变成一个字。",
+      "屏幕熄灭。"
+    ],
+    "grant_flags": ["LOOP3_SHUTDOWN"],
+    "require_flags": []
+  }
+]

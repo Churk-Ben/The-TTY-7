@@ -1,8 +1,8 @@
 package com.tty7.core.blocks.fn;
 
-import com.tty7.api.BlockMeta;
-import com.tty7.api.EvalContext;
-import com.tty7.api.NullaryBlock;
+import com.tty7.api.algoblock.BlockMeta;
+import com.tty7.api.algoblock.EvalContext;
+import com.tty7.api.algoblock.NullaryBlock;
 
 @BlockMeta(name = "DoubleOp", signature = "T -> T", description = "整数乘2", arity = 0)
 public class DoubleOpBlock extends NullaryBlock<Object> {

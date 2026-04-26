@@ -1,15 +1,56 @@
 {
   "schema_version": 1,
   "id": 2,
-  "title": "堆的秘密",
-  "story": "没有 Sort 时，试试优先队列。",
-  "input": [5, 2, 4, 3, 1],
-  "output": [1, 2, 3, 4, 5],
-  "available_blocks": ["Array", "PrioQueue", "PopEach", "_INPUT_"],
-  "forced_blocks": ["PrioQueue", "PopEach"],
-  "bonus_combos": [["PrioQueue", "PopEach"]],
-  "optimal_size": 4,
-  "time_par": 35,
+  "title": "Undo",
+  "story": "第二关开始露出一点性格。她不再给直路，而是逼你用另一种结构抵达同一个结果。",
+  "narrative": {
+    "pre_story": [
+      {
+        "speaker": "Unknown",
+        "text": "No Sort this time. I wanted a different shape for the same promise.",
+        "effect": "typewriter",
+        "sfx": ""
+      }
+    ],
+    "post_story": [
+      {
+        "speaker": "S.",
+        "text": "Reverse is the simplest. But sometimes you can't just undo.",
+        "effect": "typewriter",
+        "sfx": ""
+      }
+    ],
+    "choices": [],
+    "grant_flags": [],
+    "require_flags": []
+  },
+  "input": [
+    5,
+    4,
+    3,
+    2,
+    1
+  ],
+  "output": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "available_blocks": [
+    "_INPUT_",
+    "Reverse"
+  ],
+  "forced_blocks": [],
+  "bonus_combos": [
+    [
+      "PrioQueue",
+      "PopEach"
+    ]
+  ],
+  "optimal_size": 5,
+  "time_par": 30,
   "step_budget": 50000,
   "discovery_hint": "最小堆每次弹出的是当前最小值。"
 }

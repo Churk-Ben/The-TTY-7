@@ -15,7 +15,7 @@ class LevelLoaderTest {
         LevelLoader loader = new LevelLoader();
         List<Level> levels = loader.loadRange(1, 4);
         assertEquals(4, levels.size());
-        assertEquals("Hello Sort", levels.get(0).title());
+        assertEquals("First Step", levels.get(0).title());
         assertFalse(levels.get(1).availableBlocks().isEmpty());
     }
 }

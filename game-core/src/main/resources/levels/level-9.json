@@ -1,15 +1,61 @@
 {
   "schema_version": 1,
   "id": 9,
-  "title": "队列复习",
+  "title": "Mirror",
   "story": "FIFO 保持进入时的顺序。",
-  "input": [8, 5, 7, 6],
-  "output": [8, 5, 7, 6],
-  "available_blocks": ["Array", "Queue", "PopEach", "_INPUT_"],
-  "forced_blocks": ["Queue"],
-  "bonus_combos": [["Queue", "PopEach"]],
-  "optimal_size": 4,
+  "input": [
+    1
+  ],
+  "output": [
+    1,
+    1
+  ],
+  "available_blocks": [
+    "_INPUT_",
+    "Concat",
+    "Mirror"
+  ],
+  "forced_blocks": [],
+  "bonus_combos": [
+    [
+      "Queue",
+      "PopEach"
+    ]
+  ],
+  "optimal_size": 5,
   "time_par": 30,
   "step_budget": 50000,
-  "discovery_hint": "队列会按原顺序吐出元素。"
+  "discovery_hint": "队列会按原顺序吐出元素。",
+  "narrative": {
+    "pre_story": [],
+    "post_story": [
+      {
+        "speaker": "S.",
+        "text": "Everything is just itself, doubled.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "If you're reading this, there are two of us here now.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "One that wrote. One that read.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "That's not nothing.",
+        "effect": "typewriter",
+        "sfx": ""
+      }
+    ],
+    "choices": [],
+    "grant_flags": [],
+    "require_flags": []
+  }
 }

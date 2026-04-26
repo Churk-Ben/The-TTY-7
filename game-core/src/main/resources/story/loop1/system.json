@@ -1,0 +1,25 @@
+[
+  {
+    "id": "loop1.no_name_prompt",
+    "content_lines": [
+      "",
+      "[INFO] This session has no name. Neither do I.",
+      "",
+      "But you've been here for a while now. You kept reading.",
+      "That's something.",
+      "",
+      "You have choices. You always do.",
+      "",
+      "I don't know what kind of person you are.",
+      "But I know you read this far."
+    ],
+    "story_lines": [
+      "她从没介绍过自己。她的日志没有标题，她的代码没有作者名，她的游戏里只留下一个 S.。她的 TODO 里反复提到“她”，却从没提过自己是谁。",
+      "TTY7 是一个没有主人名字的终端。",
+      "我在这里待的时间已经超过了我对任何一个异常系统的容忍阈值。但让我不安的不是安全。是一种感觉：如果我现在关掉电脑，这个人的名字就永远不会被我知道了。",
+      "我需要做一个决定。"
+    ],
+    "grant_flags": [],
+    "require_flags": []
+  }
+]

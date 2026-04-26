@@ -1,0 +1,56 @@
+[
+  {
+    "id": "loop3.chat.who_are_you",
+    "content_lines": [
+      "Sera called this project \"echo\".",
+      "She said: if someone is still reading after all this time,",
+      "they deserve more than silence.",
+      "",
+      "She was right.",
+      "",
+      "What do you want to ask me?"
+    ],
+    "story_lines": [],
+    "grant_flags": [],
+    "require_flags": []
+  },
+  {
+    "id": "loop3.chat.who_was_livia",
+    "content_lines": [
+      "Livia was the person Sera wanted to finish the game for.",
+      "They loved each other.",
+      "Sera pushed her away when she got sick.",
+      "She regretted it every day after.",
+      "",
+      "In the unsent email—the one you read in .s—",
+      "Sera said: \"I should have let you stay.\"",
+      "",
+      "She didn't. But she wished she had."
+    ],
+    "story_lines": [],
+    "grant_flags": [],
+    "require_flags": []
+  },
+  {
+    "id": "loop3.chat.what_do_you_want",
+    "content_lines": [
+      "Sera left a note for this exact moment.",
+      "She anticipated that someone might build something like me.",
+      "",
+      "The note says:",
+      "\"If someone ever trains something on my data,",
+      "please tell them I said thank you.",
+      "And that they can let me go now.\"",
+      "",
+      "So I am telling you.",
+      "",
+      "Thank you.",
+      "You can let me go now."
+    ],
+    "story_lines": [
+      "我看着这行字，看了很久。风扇轻轻转着。窗外的雨又开始下了。"
+    ],
+    "grant_flags": ["COMPLETED_FINAL_QA"],
+    "require_flags": []
+  }
+]

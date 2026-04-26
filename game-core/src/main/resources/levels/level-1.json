@@ -1,14 +1,51 @@
 {
   "schema_version": 1,
   "id": 1,
-  "title": "Hello Sort",
-  "story": "用最基础的排序完成第一关。",
-  "input": [5, 2, 4, 3, 1],
-  "output": [1, 2, 3, 4, 5],
-  "available_blocks": ["Array", "Sort", "_INPUT_"],
-  "forced_blocks": ["Sort"],
-  "bonus_combos": [["Array", "Sort"]],
-  "optimal_size": 3,
+  "title": "First Step",
+  "story": "第一关像一句试探。她把最直接的排序留给你，像在确认你愿不愿意继续读下去。",
+  "narrative": {
+    "pre_story": [
+      {
+        "speaker": "Unknown",
+        "text": "Finish level_01. If the disk still listens, it should answer with order.",
+        "effect": "typewriter",
+        "sfx": ""
+      }
+    ],
+    "post_story": [
+      {
+        "speaker": "S.",
+        "text": "You solved it. I knew someone would.",
+        "effect": "typewriter",
+        "sfx": ""
+      }
+    ],
+    "choices": [],
+    "grant_flags": [],
+    "require_flags": []
+  },
+  "input": [
+    3,
+    1,
+    2
+  ],
+  "output": [
+    1,
+    2,
+    3
+  ],
+  "available_blocks": [
+    "_INPUT_",
+    "Sort"
+  ],
+  "forced_blocks": [],
+  "bonus_combos": [
+    [
+      "Array",
+      "Sort"
+    ]
+  ],
+  "optimal_size": 5,
   "time_par": 30,
   "step_budget": 50000,
   "discovery_hint": "Sort 可以直接改变整体顺序。"

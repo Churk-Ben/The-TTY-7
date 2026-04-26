@@ -1,15 +1,109 @@
 {
   "schema_version": 1,
   "id": 6,
-  "title": "重复也要排好",
+  "title": "Her Name",
   "story": "重复元素也能被稳定地整理。",
-  "input": [4, 2, 2, 5, 1, 3],
-  "output": [1, 2, 2, 3, 4, 5],
-  "available_blocks": ["Array", "Sort", "_INPUT_"],
-  "forced_blocks": ["Sort"],
-  "bonus_combos": [["Array", "Sort"]],
-  "optimal_size": 3,
-  "time_par": 35,
+  "input": [
+    12,
+    9,
+    22,
+    9,
+    1
+  ],
+  "output": [
+    12,
+    9,
+    22,
+    9,
+    1
+  ],
+  "available_blocks": [
+    "_INPUT_",
+    "Ident"
+  ],
+  "forced_blocks": [],
+  "bonus_combos": [
+    [
+      "Array",
+      "Sort"
+    ]
+  ],
+  "optimal_size": 5,
+  "time_par": 30,
   "step_budget": 50000,
-  "discovery_hint": "Sort 会把相同值放在相邻位置。"
+  "discovery_hint": "Sort 会把相同值放在相邻位置。",
+  "narrative": {
+    "pre_story": [],
+    "post_story": [
+      {
+        "speaker": "S.",
+        "text": "The input is the same as the target.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "The solution is identity.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "I know this looks like a trick. It's not.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "This level is for L.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "L—those numbers are your name. A=1 Z=26.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "L=12, I=9, V=22, I=9, A=1. LIVIA.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "That's you.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "You don't need to change anything to be the answer.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "You just need to be.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "I wanted to put this in a game so it would last.",
+        "effect": "typewriter",
+        "sfx": ""
+      },
+      {
+        "speaker": "S.",
+        "text": "Even if I don't.",
+        "effect": "typewriter",
+        "sfx": ""
+      }
+    ],
+    "choices": [],
+    "grant_flags": [],
+    "require_flags": []
+  }
 }

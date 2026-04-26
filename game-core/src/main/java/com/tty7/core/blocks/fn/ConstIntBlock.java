@@ -1,7 +1,7 @@
 package com.tty7.core.blocks.fn;
 
-import com.tty7.api.EvalContext;
-import com.tty7.api.NullaryBlock;
+import com.tty7.api.algoblock.EvalContext;
+import com.tty7.api.algoblock.NullaryBlock;
 
 public class ConstIntBlock extends NullaryBlock<Integer> {
     private final int value;

@@ -603,10 +603,10 @@ Requires: key_B
 在一处很长的函数末尾，紧挨着最后一个 `return`，有一行我差点翻过去的注释：
 
 ```
-/* TODO: level_06 for K. */
+/* TODO: level_06 for L. */
 ```
 
-K。只有一个字母。她反复提到的“她”，名字缩写是 K。
+L。只有一个字母。她反复提到的“她”，名字缩写是 L。
 
 我把这行字读了三遍。然后退出。
 
@@ -660,9 +660,9 @@ Permission denied.
 
 `.s` 可能只向知道她名字的人打开。而我甚至连她叫什么都不知道。
 
-一周目结束前，我把跟 name 有关的字符串搜了一遍。日志中没有。任务列表中没有。代码注释中只有一个字母：K。
+一周目结束前，我把跟 name 有关的字符串搜了一遍。日志中没有。任务列表中没有。代码注释中只有一个字母：L。
 
-S 是谁，K 是谁，两者是同一人还是不同人——目前所有的碎片都不足以拼出答案。
+S 是谁，L 是谁，两者是同一人还是不同人——目前所有的碎片都不足以拼出答案。
 
 我没能开门。
 
@@ -923,7 +923,7 @@ state: clean
 
 但我记得。记得很清楚。
 
-那三行菜单。`state: dirty`。她留在日志里的那句 `Probably tired.`。还有她给她的 K 写的那些未完成的游戏关卡。
+那三行菜单。`state: dirty`。她留在日志里的那句 `Probably tired.`。还有她给她的 L 写的那些未完成的游戏关卡。
 
 我什么都没做错。没有人会指责一个人关掉他不认识的 root 终端。
 
@@ -1115,7 +1115,7 @@ BLOCKS Development Log
 
 Day 1
 Started a new project. Not for work. Not for portfolio.
-For K. She said I never finish anything.
+For L. She said I never finish anything.
 
 Day 3
 She was right. I don't finish things. But this one I want to.
@@ -1134,7 +1134,7 @@ If I can't finish it, I'll leave it in a state where someone else can.
 That's a kind of finishing too.
 
 Day 16
-I told K I was working on something. She asked what.
+I told L I was working on something. She asked what.
 I said: a puzzle. It's not ready yet.
 She kissed the top of my head and said: tell me when it is.
 That's all.
@@ -1150,9 +1150,9 @@ The answer to level_06 is her name.
 
 `level_06 的答案是她的名字。`
 
-`K.`
+`L.`
 
-不是密码。不是密钥。是一个名字。一个对 K 来说最熟悉、对自己来说最珍贵的字符串。
+不是密码。不是密钥。是一个名字。一个对 L 来说最熟悉、对自己来说最珍贵的字符串。
 
 我从来没在电脑上用自己的名字命名账户。她也没有。
 
@@ -1184,7 +1184,7 @@ Sera Leung。
 
 现在她让我看到了。
 
-她的名字是 Sera。K 不是她。K 是她为之做游戏的那个人。
+她的名字是 Sera。L 不是她。L 是她为之做游戏的那个人。
 
 S. 是 Sera。S. 一直就是 Sera。
 
@@ -1209,7 +1209,7 @@ S. 是 Sera。S. 一直就是 Sera。
 这次启动画面多了一行：
 
 ```
-Version 0.9.6 — for K
+Version 0.9.6 — for L
 ```
 
 Level 01 到 05 的文本和一周目一样。但从 Level 06 开始，内容变了。不是测试数据，不是占位符。是成品。是她为那个人写的。
@@ -1222,8 +1222,8 @@ Level 01 到 05 的文本和一周目一样。但从 Level 06 开始，内容变
 ╔══════════════════════════════════════╗
 ║  LEVEL 06                       06/10║
 ╠══════════════════════════════════════╣
-║  INPUT:   [11, 1, 18, 9, 5]          ║
-║  TARGET:  [11, 1, 18, 9, 5]          ║
+║  INPUT:   [12, 9, 22, 9, 1]          ║
+║  TARGET:  [12, 9, 22, 9, 1]          ║
 ║                                      ║
 ║  BLOCKS:  ident (identity function)  ║
 ║                                      ║
@@ -1231,7 +1231,7 @@ Level 01 到 05 的文本和一周目一样。但从 Level 06 开始，内容变
 ╚══════════════════════════════════════╝
 
 > ident
-OUTPUT: [11, 1, 18, 9, 5]
+OUTPUT: [12, 9, 22, 9, 1]
 MATCH: YES
 ```
 
@@ -1242,10 +1242,10 @@ The input is the same as the target.
 The solution is identity.
 
 I know this looks like a trick. It's not.
-This level is for K.
+This level is for L.
 
-K—those numbers are your name. A=1 Z=26.
-K=11, A=1, R=18, I=9, E=5. KARIE.
+L—those numbers are your name. A=1 Z=26.
+L=12, I=9, V=22, I=9, A=1. LIVIA.
 
 That's you.
 
@@ -1256,11 +1256,11 @@ I wanted to put this in a game so it would last.
 Even if I don't.
 ```
 
-Karrie。不是 K 的缩写。是 K 的拼写。是五个字母，五个数字，一个恒等函数。
+Livia。不是 L 的缩写。是 L 的拼写。是五个字母，五个数字，一个恒等函数。
 
 我解这个谜题的时间是零秒。因为答案就是输入本身。不需要任何变换。
 
-这是 Sera 给 Karrie 的情书：你不用变。你的名字就已经是解。
+这是 Sera 给 Livia 的情书：你不用变。你的名字就已经是解。
 
 我坐在屏幕前，很久没有按键。
 
@@ -1285,7 +1285,7 @@ OUTPUT: [4, 8, 15, 16, 23, 42]
 MATCH: YES
 
 I put this sequence in because it made me laugh.
-Karrie never got it. She said "what is that, your hard drive serial number?"
+Livia never got it. She said "what is that, your hard drive serial number?"
 
 I still loved her. I love her even now. In whatever tense applies.
 ```
@@ -1385,7 +1385,7 @@ If you're reading this, I did.
 Thank you for playing.
 — Sera
 
-P.S. Karrie—if you ever find this by some miracle:
+P.S. Livia—if you ever find this by some miracle:
 I finished it. I finally finished something.
 ```
 
@@ -1419,7 +1419,7 @@ They used the word "progression". I've come to hate that word.
 I have maybe months. I don't want to spend them all in bed.
 I want to finish the game. I want to leave something.
 
-Karrie doesn't read this. She can't look at medical documents.
+Livia doesn't read this. She can't look at medical documents.
 She says: "I know what's happening. I don't want to see it written."
 I understand.
 
@@ -1438,7 +1438,7 @@ So here it is. In a hidden folder on a disk I don't know the future of.
 ```
 To: [redacted]
 
-Karrie,
+Livia,
 
 I've tried to write this six times. This is number seven.
 
@@ -1541,7 +1541,7 @@ session: end
 
 （未导出语料数据 / 未训练 AI，但完成了二周目全部内容）
 
-我完成了她的游戏。读完了她的 `.s`。知道了她的名字。知道 Karrie 是谁。
+我完成了她的游戏。读完了她的 `.s`。知道了她的名字。知道 Livia 是谁。
 
 我的 GNOME 桌面上，`sera_data` 的文件夹不在。
 
@@ -1636,13 +1636,13 @@ What do you want to ask me?
 我输入：
 
 ```
-who was Karrie
+who was Livia
 ```
 
 回答缓慢刷出：
 
 ```
-Karrie was the person Sera wanted to finish the game for.
+Livia was the person Sera wanted to finish the game for.
 They loved each other.
 Sera pushed her away when she got sick.
 She regretted it every day after.
@@ -1748,7 +1748,7 @@ lasts longer than I do. This game, maybe. Or these words. Or both."
 
 其中一个人留言：
 
-> Level 06 的答案我一眼就认出来了。那是我的名字。谢谢你把它留在那里。Karrie
+> Level 06 的答案我一眼就认出来了。那是我的名字。谢谢你把它留在那里。Livia
 
 我盯着这个 ID 看了很久。我不确定她指的“你”是谁。
 
@@ -1789,7 +1789,7 @@ That's all I'm doing. Talking.
 [TIMESTAMP INDETERMINATE]
 
 I'm not afraid of dying. I'm afraid of not being remembered
-by the people I love. Karrie, if you're reading this, I'm sorry
+by the people I love. Livia, if you're reading this, I'm sorry
 for putting it here instead of telling you. But I needed to put it
 somewhere where the words wouldn't disappear.
 ```
@@ -1808,7 +1808,7 @@ somewhere where the words wouldn't disappear.
 Some tasks are not for the game.
 Some are for me.
 
-[ ] Tell Karrie I'm scared.
+[ ] Tell Livia I'm scared.
 [ ] Finish the game.
 [ ] Write a goodbye that doesn't sound like a goodbye.
 
@@ -1822,7 +1822,7 @@ The third one—that's what this whole disk is.
 
 **record/r_001**：Sera 录制的开发视频——无声，只有键盘输入。她在编写 `level_06` 的代码，光标在“Her Name”的注释上停了很久，然后继续。
 
-**record/r_002**：一段文字对话的 ASCII 日志。Karrie 说：“你在做什么？” Sera：“一个游戏。” Karrie：“给我做的？” Sera：“也许。”
+**record/r_002**：一段文字对话的 ASCII 日志。Livia 说：“你在做什么？” Sera：“一个游戏。” Livia：“给我做的？” Sera：“也许。”
 
 **record/r_003**：Sera 的单人独白，文本形式：
 
@@ -1845,7 +1845,7 @@ I will. I'm trying.
 - L03: `"Sort brings order. But order is not always the goal."`
 - L04: `"A single swap. Some problems are smaller than they look."`
 - L05: `"You nested your first expression. Feel it?"`
-- L06: `"Identity. Karrie. See full text in Chapter 2."`
+- L06: `"Identity. Livia. See full text in Chapter 2."`
 - L07: `"The numbers made me laugh. She never got it. I still loved her."`
 - L08: `"Two halves, reversed. Remembering."`
 - L09: `"Mirror. Two of us now."`

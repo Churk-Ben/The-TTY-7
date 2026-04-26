@@ -1,0 +1,35 @@
+[
+  {
+    "id": "loop1.s.denied",
+    "content_lines": ["bash: cd: .s: Permission denied", "", "Permission denied.", "(Not yet.)"],
+    "story_lines": [
+      "chmod 无效。sudo 不存在。我不是被拦在门外，是被拦在一个我明明拥有所有权限的房间里。",
+      "她把门做成了只有一种方式能打开的样子。",
+      "错误信息不是标准 bash 输出。它被替换过：(Not yet.)",
+      "这句话写在括号里。不是系统说的。是她说的。",
+      "门不是封死的。是计时的。或者计条件的。"
+    ],
+    "grant_flags": ["FLAG_TRIED_S_DOOR"],
+    "require_flags": []
+  },
+  {
+    "id": "loop1.s.denied_after_todo",
+    "content_lines": [
+      "bash: cd: .s: Permission denied",
+      "",
+      "Permission denied.",
+      "(Not yet.)",
+      "",
+      "I haven't written the note yet. You'll have to come back."
+    ],
+    "story_lines": [
+      "这是我第一次在 TTY7 里看到“我”。",
+      "之前的日志都用英文写，但主语总是模糊的、被省略的、被推迟到被动语态后面的。这行不一样。",
+      "主语明确。时态是现在完成时，但它在对一个未来的人说话。",
+      "她终于开始用第一人称。不是因为没有距离了。是因为我已经撞了太多次门。",
+      "我离她近了一点。"
+    ],
+    "grant_flags": [],
+    "require_flags": ["FLAG_SAW_LOCKED_S_NOTE"]
+  }
+]

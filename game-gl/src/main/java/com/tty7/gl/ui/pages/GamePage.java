@@ -52,20 +52,31 @@ public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.
             long cursorSolidUntilMillis,
             CompleterComponent.Model completerModel,
             boolean paused,
-            int pauseSelectedIndex) {
+            int pauseSelectedIndex,
+            com.tty7.gl.ui.components.StoryPanelComponent.Model storyModel,
+            boolean showingPostStory) {
 
         public static Model init(Level level, long startEpochSeconds) {
-            return new Model(level, "", 0, null, startEpochSeconds, 0L, CompleterComponent.Model.init(), false, 0);
+            com.tty7.gl.ui.components.StoryPanelComponent.Model sm = com.tty7.gl.ui.components.StoryPanelComponent.Model
+                    .init();
+            if (level.narrative() != null && !level.narrative().preStory().isEmpty()) {
+                java.util.List<String> lines = level.narrative().preStory().stream()
+                        .map(com.tty7.core.story.DialogueLine::text).toList();
+                sm = com.tty7.gl.ui.components.StoryPanelComponent
+                        .update(sm, new com.tty7.gl.ui.components.StoryPanelComponent.Msg.Show(lines)).model();
+            }
+            return new Model(level, "", 0, null, startEpochSeconds, 0L, CompleterComponent.Model.init(), false, 0, sm,
+                    false);
         }
 
         public Model withCompleterModel(CompleterComponent.Model newCompleterModel) {
             return new Model(level, line, cursorIndex, lastResult, startEpochSeconds, cursorSolidUntilMillis,
-                    newCompleterModel, paused, pauseSelectedIndex);
+                    newCompleterModel, paused, pauseSelectedIndex, storyModel, showingPostStory);
         }
 
         public Model withPause(boolean paused, int pauseSelectedIndex) {
             return new Model(level, line, cursorIndex, lastResult, startEpochSeconds, cursorSolidUntilMillis,
-                    completerModel, paused, pauseSelectedIndex);
+                    completerModel, paused, pauseSelectedIndex, storyModel, showingPostStory);
         }
     }
 
@@ -97,29 +108,73 @@ public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.
     @Override
     public UpdateResult<Model, Cmd> update(Model model, Msg msg) {
         if (msg instanceof Msg.SubmitFinished(SubmissionResult result)) {
+            com.tty7.gl.ui.components.StoryPanelComponent.Model nextStory = model.storyModel();
+            boolean showPost = false;
+            if (result.accepted() && model.level().narrative() != null
+                    && !model.level().narrative().postStory().isEmpty()) {
+                java.util.List<String> lines = model.level().narrative().postStory().stream()
+                        .map(com.tty7.core.story.DialogueLine::text).toList();
+                nextStory = com.tty7.gl.ui.components.StoryPanelComponent
+                        .update(nextStory, new com.tty7.gl.ui.components.StoryPanelComponent.Msg.Show(lines)).model();
+                showPost = true;
+            }
             Model next = new Model(model.level(), model.line(), model.cursorIndex(), result,
                     model.startEpochSeconds(), model.cursorSolidUntilMillis(), model.completerModel(), model.paused(),
-                    model.pauseSelectedIndex());
+                    model.pauseSelectedIndex(), nextStory, showPost);
+
+            // If accepted but no post-story, return immediately
+            if (result.accepted() && !showPost) {
+                return new UpdateResult<>(next, List.of(new Cmd.Submit(model.level(), model.line(), 0))); // AppProgram
+                                                                                                          // handles
+                                                                                                          // next level
+            }
             return new UpdateResult<>(next, List.of());
         }
 
-        if (msg instanceof Msg.Intent(InputIntent intent1) && intent1 instanceof InputIntent.TextTyped(char value)) {
-            if (model.paused())
-                return new UpdateResult<>(model, List.of());
-            // Hide completer when typing normally
-            UpdateResult<CompleterComponent.Model, Void> completerResult = CompleterComponent
-                    .update(model.completerModel(), new CompleterComponent.Msg.Hide());
-
-            String line = model.line();
-            int cursor = clampCursor(model.cursorIndex(), line.length());
-            String nextLine = line.substring(0, cursor) + value + line.substring(cursor);
-            long solidUntil = System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS;
-            Model next = new Model(model.level(), nextLine, cursor + 1, model.lastResult(), model.startEpochSeconds(),
-                    solidUntil, completerResult.model(), model.paused(), model.pauseSelectedIndex());
-            return new UpdateResult<>(next, List.of(new Cmd.PlaySound(SFX_TYPE_IN)));
-        }
-
         if (msg instanceof Msg.Intent(InputIntent intent)) {
+            if (model.storyModel().active()) {
+                boolean isAdvance = intent instanceof InputIntent.Submit ||
+                        (intent instanceof InputIntent.TextTyped tt && (tt.value() == ' ' || tt.value() == '\n'));
+                if (isAdvance) {
+                    UpdateResult<com.tty7.gl.ui.components.StoryPanelComponent.Model, Void> r = com.tty7.gl.ui.components.StoryPanelComponent
+                            .update(model.storyModel(), new com.tty7.gl.ui.components.StoryPanelComponent.Msg.Next());
+                    Model next = new Model(model.level(), model.line(), model.cursorIndex(), model.lastResult(),
+                            model.startEpochSeconds(), model.cursorSolidUntilMillis(), model.completerModel(),
+                            model.paused(),
+                            model.pauseSelectedIndex(), r.model(), model.showingPostStory());
+
+                    if (!next.storyModel().active() && next.showingPostStory()) {
+                        // Finished reading post story, trigger level completion
+                        return new UpdateResult<>(
+                                new Model(model.level(), model.line(), model.cursorIndex(), model.lastResult(),
+                                        model.startEpochSeconds(), model.cursorSolidUntilMillis(),
+                                        model.completerModel(), model.paused(),
+                                        model.pauseSelectedIndex(), next.storyModel(), false),
+                                List.of(new Cmd.Submit(model.level(), model.line(), 0)));
+                    }
+                    return new UpdateResult<>(next, List.of(new Cmd.PlaySound(SFX_INTERACT)));
+                }
+                return new UpdateResult<>(model, List.of());
+            }
+
+            if (intent instanceof InputIntent.TextTyped(char value)) {
+                if (model.paused())
+                    return new UpdateResult<>(model, List.of());
+
+                // Hide completer when typing normally
+                UpdateResult<CompleterComponent.Model, Void> completerResult = CompleterComponent
+                        .update(model.completerModel(), new CompleterComponent.Msg.Hide());
+
+                String line = model.line();
+                int cursor = clampCursor(model.cursorIndex(), line.length());
+                String nextLine = line.substring(0, cursor) + value + line.substring(cursor);
+                long solidUntil = System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS;
+                Model next = new Model(model.level(), nextLine, cursor + 1, model.lastResult(),
+                        model.startEpochSeconds(),
+                        solidUntil, completerResult.model(), model.paused(), model.pauseSelectedIndex(),
+                        model.storyModel(), model.showingPostStory());
+                return new UpdateResult<>(next, List.of(new Cmd.PlaySound(SFX_TYPE_IN)));
+            }
 
             if (model.paused()) {
                 if (intent instanceof InputIntent.Cancel) {
@@ -158,7 +213,7 @@ public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.
                 long solidUntil = System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS;
                 Model next = new Model(model.level(), nextLine, cursor + value.length(), model.lastResult(),
                         model.startEpochSeconds(), solidUntil, completerResult.model(), model.paused(),
-                        model.pauseSelectedIndex());
+                        model.pauseSelectedIndex(), model.storyModel(), model.showingPostStory());
                 return new UpdateResult<>(next, List.of());
             }
 
@@ -197,7 +252,8 @@ public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.
                                 .update(model.completerModel(), new CompleterComponent.Msg.Hide());
                         Model next = new Model(model.level(), nextLine, nextCursor, model.lastResult(),
                                 model.startEpochSeconds(), System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS,
-                                r.model(), model.paused(), model.pauseSelectedIndex());
+                                r.model(), model.paused(), model.pauseSelectedIndex(), model.storyModel(),
+                                model.showingPostStory());
                         return new UpdateResult<>(next, List.of(new Cmd.PlaySound(SFX_TYPE_IN)));
                     }
                 }
@@ -219,26 +275,27 @@ public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.
                 long solidUntil = System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS;
                 Model next = new Model(model.level(), nextLine, cursor - 1, model.lastResult(),
                         model.startEpochSeconds(), solidUntil, model.completerModel(), model.paused(),
-                        model.pauseSelectedIndex());
+                        model.pauseSelectedIndex(), model.storyModel(), model.showingPostStory());
                 return new UpdateResult<>(next, List.of());
             }
             if (intent instanceof InputIntent.Delete && cursor < line.length()) {
                 String nextLine = line.substring(0, cursor) + line.substring(cursor + 1);
                 long solidUntil = System.currentTimeMillis() + CURSOR_SOLID_AFTER_EDIT_MS;
                 Model next = new Model(model.level(), nextLine, cursor, model.lastResult(), model.startEpochSeconds(),
-                        solidUntil, model.completerModel(), model.paused(), model.pauseSelectedIndex());
+                        solidUntil, model.completerModel(), model.paused(), model.pauseSelectedIndex(),
+                        model.storyModel(), model.showingPostStory());
                 return new UpdateResult<>(next, List.of());
             }
             if (intent instanceof InputIntent.MoveCursorLeft) {
                 Model next = new Model(model.level(), line, Math.max(0, cursor - 1), model.lastResult(),
                         model.startEpochSeconds(), model.cursorSolidUntilMillis(), model.completerModel(),
-                        model.paused(), model.pauseSelectedIndex());
+                        model.paused(), model.pauseSelectedIndex(), model.storyModel(), model.showingPostStory());
                 return new UpdateResult<>(next, List.of());
             }
             if (intent instanceof InputIntent.MoveCursorRight) {
                 Model next = new Model(model.level(), line, Math.min(line.length(), cursor + 1), model.lastResult(),
                         model.startEpochSeconds(), model.cursorSolidUntilMillis(), model.completerModel(),
-                        model.paused(), model.pauseSelectedIndex());
+                        model.paused(), model.pauseSelectedIndex(), model.storyModel(), model.showingPostStory());
                 return new UpdateResult<>(next, List.of());
             }
             if (intent instanceof InputIntent.Tab) {
@@ -258,7 +315,7 @@ public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.
                 Cmd.Submit command = new Cmd.Submit(model.level(), line, elapsed);
                 Model next = new Model(model.level(), line, cursor, model.lastResult(), model.startEpochSeconds(),
                         model.cursorSolidUntilMillis(), model.completerModel(), model.paused(),
-                        model.pauseSelectedIndex());
+                        model.pauseSelectedIndex(), model.storyModel(), model.showingPostStory());
                 return new UpdateResult<>(next, List.of(command, new Cmd.PlaySound(SFX_TYPE_IN)));
             }
         }
@@ -334,6 +391,13 @@ public class GamePage implements Program<GamePage.Model, GamePage.Msg, GamePage.
         }
 
         List<UiEffect> effects = new ArrayList<>();
+
+        if (model.storyModel().active()) {
+            com.tty7.gl.ui.components.StoryPanelComponent.view(model.storyModel(), buffer, "narration", cols, rows,
+                    nowMillis, effects);
+            return new RenderFrame(buffer, null, effects);
+        }
+
         if (model.paused()) {
             String title = " Paused ";
             String[] options = { "Resume Game", "Return to Main Menu" };

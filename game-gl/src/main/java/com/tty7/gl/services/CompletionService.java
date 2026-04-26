@@ -1,6 +1,6 @@
 package com.tty7.gl.services;
 
-import com.tty7.api.BlockMeta;
+import com.tty7.api.algoblock.BlockMeta;
 import com.tty7.core.engine.BlockRegistry;
 
 import java.util.Comparator;

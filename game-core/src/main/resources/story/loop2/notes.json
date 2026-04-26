@@ -1,0 +1,73 @@
+[
+  {
+    "id": "loop2.notes.log_blocks",
+    "content_lines": [
+      "BLOCKS Development Log",
+      "========================",
+      "",
+      "Day 1",
+      "Started a new project. Not for work. Not for portfolio.",
+      "For Livia. She said I never finish anything.",
+      "",
+      "Day 3",
+      "She was right. I don't finish things. But this one I want to.",
+      "The idea is simple: you get a sequence, you build an expression.",
+      "Nesting is the core mechanic. It's like composing functions.",
+      "She likes that kind of thing. She doesn't know I'm making it for her.",
+      "",
+      "Day 7",
+      "Level 06 is harder to design than I thought. I want it to be special.",
+      "Not just mechanically hard. I want the solution to feel like a sentence",
+      "only she knows how to write.",
+      "",
+      "Day 12",
+      "Bad week. Didn't code. Thought about the game instead.",
+      "If I can't finish it, I'll leave it in a state where someone else can.",
+      "That's a kind of finishing too.",
+      "",
+      "Day 16",
+      "I told Livia I was working on something. She asked what.",
+      "I said: a puzzle. It's not ready yet.",
+      "She kissed the top of my head and said: tell me when it is.",
+      "That's all.",
+      "",
+      "Day 20",
+      "I don't think I'm going to finish level_06.",
+      "But I wrote it down. All of it. The logic, the hints, the solution.",
+      "If someone finds this: it's yours now.",
+      "The answer to level_06 is her name."
+    ],
+    "story_lines": [
+      "最后两行让我把手指从键盘上抬起来。",
+      "level_06 的答案是她的名字。Livia。",
+      "不是密码。不是密钥。是一个名字。一个对 Livia 来说最熟悉、对自己来说最珍贵的字符串。",
+      "我从来没在电脑上用自己的名字命名账户。她也没有。",
+      "但她把那个人的名字藏在了游戏最深的地方。"
+    ],
+    "grant_flags": ["FLAG_READ_LOG_BLOCKS"],
+    "require_flags": []
+  },
+  {
+    "id": "loop2.gitconfig",
+    "content_lines": [
+      "[user]",
+      "\tname = Sera Leung",
+      "\temail = sera.leung@[domain].dev",
+      "[core]",
+      "\teditor = vim",
+      "[alias]",
+      "\tfinish = commit -m \"done, maybe\""
+    ],
+    "story_lines": [
+      "Sera Leung。",
+      "她的全名出现在这里，静悄悄的，像一件叠好的旧衣服。",
+      ".gitconfig 不是写给外人看的文件。这是她的日常配置，是她每次 commit 的时候 git 自动附在提交后面的名字。",
+      "一周目我没有看到它。因为一周目里的 TTY7 被剥离了所有元数据。",
+      "现在她让我看到了。",
+      "她的名字是 Sera。Livia 不是她。Livia 是她为之做游戏的那个人。",
+      "S. 是 Sera。S. 一直就是 Sera。"
+    ],
+    "grant_flags": ["FLAG_KNOW_SERA"],
+    "require_flags": []
+  }
+]

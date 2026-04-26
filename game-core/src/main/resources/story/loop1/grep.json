@@ -1,0 +1,26 @@
+[
+  {
+    "id": "loop1.grep.name",
+    "content_lines": [
+      "./log/0002:9:  ... I don't have a name for this place yet.",
+      "./tasks/TODO:5:  ... key_B is not a password. It's a name.",
+      "./record/r_003:12:  ... She asked me if the game would have my name on it.",
+      "./record/r_003:14:  ... I said no. She said: that's a mistake.",
+      "./record/r_003:15:  ... I said: then you put yours.",
+      "",
+      "./log/0001:7:  ... If you're reading this, then my disk has a new name.",
+      "./log/0001:8:  ... It's yours now. Don't tell me what it is."
+    ],
+    "story_lines": [
+      "最后一条让我停下来。",
+      "It's yours now. Don't tell me what it is.",
+      "她不在乎这个盘将来叫 sda 还是 sdb，挂载在谁的系统上。她只在乎它被用了，被某人开机，被某人看到了这些文字。",
+      "至于她自己的名字——她一次也没写下来。",
+      "不是忘了。是故意的。",
+      "我把 grep 结果翻了三遍，确认没有遗漏。没有签名。没有自报家门。只有一个缩写 S. 留在那些不需要权限的文件里，淡得像是铅笔印。",
+      "如果我想知道她的名字，需要另一条路。"
+    ],
+    "grant_flags": ["FLAG_SEARCHED_NAME"],
+    "require_flags": []
+  }
+]

@@ -1,0 +1,88 @@
+[
+  {
+    "id": "loop1.log.read_0001",
+    "content_lines": [
+      "[LOG] [0001] [TIMESTAMP CORRUPTED]",
+      "",
+      "Disk zeroed this morning. Standard procedure, they say. Two passes.",
+      "That's enough for a normal buyer. Not enough for someone who's looking.",
+      "But nobody's looking. Nobody knows what was here.",
+      "",
+      "I kept a room.",
+      "",
+      "Not in the partition table. Not in the superblock. Somewhere else.",
+      "The bootloader has a few unused sectors after stage 1.5. It is",
+      "probably not the best place, but I am out of time and options.",
+      "",
+      "If you're reading this — welcome.",
+      "You didn't find me. You just happened to live here now.",
+      "I hope you don't mind."
+    ],
+    "story_lines": ["光标在最后一行闪了很久。雨声和风扇都不见了。", "三行日志，每一条都有标题。我往下翻。"],
+    "grant_flags": [],
+    "require_flags": []
+  },
+  {
+    "id": "loop1.log.read_0002",
+    "content_lines": [
+      "[LOG] [0002] [TIMESTAMP CORRUPTED]",
+      "",
+      "I thought about encrypting everything. Then I thought: what's the point?",
+      "Encryption is for things you want to protect. I want this",
+      "to be found, I just don't know by whom. Or when.",
+      "",
+      "Maybe the disk sits in a drawer. Maybe it's recycled, melted down.",
+      "Maybe in ten years someone boots it because they can't afford a",
+      "new one and eBay still exists. Hello, eBay person.",
+      "",
+      "I bought this disk used too.",
+      "It had someone else's Linux on it when it came.",
+      "Fitting, isn't it."
+    ],
+    "story_lines": ["我愣了一下。她也是买的二手盘。这是一个套娃。"],
+    "grant_flags": [],
+    "require_flags": []
+  },
+  {
+    "id": "loop1.log.read_0003",
+    "content_lines": [
+      "[LOG] [0003] [TIMESTAMP CORRUPTED]",
+      "",
+      "Today was a bad day. I don't write about the medical things much",
+      "because they take up enough of my mind already. But I want to say",
+      "this somewhere:",
+      "",
+      "The game isn't finished.",
+      "I wanted it to be.",
+      "I wanted to give it to her.",
+      "",
+      "If I can't finish it, I'll at least leave the pieces somewhere. A",
+      "level editor. An arbitrary puzzle machine. Someone can solve them.",
+      "Someone can see what I was making.",
+      "",
+      "There are worse legacies than a puzzle nobody asked for."
+    ],
+    "story_lines": ["game。her。她反复提到同一个指向。", "她在给某个人做游戏。一个解谜游戏。而那个人可能从来没收到。"],
+    "grant_flags": [],
+    "require_flags": []
+  },
+  {
+    "id": "loop1.log.read_0004",
+    "content_lines": [
+      "I wonder what you look like. Probably tired.",
+      "You opened the log. That's already more than I hoped.",
+      "Thank you."
+    ],
+    "story_lines": [
+      "光标停在下面，不闪了，像是等我说点什么。",
+      "我什么都没说。屏幕自己暗了半秒，然后回到提示符。",
+      "这条不是日志。是信。",
+      "她猜到有人会读。甚至在想象读她的那个人是什么样子。",
+      "“Probably tired.” 是句温和的、对着空气讲的玩笑话。",
+      "我感到一阵轻微的寒意。不是因为恐惧。是因为被人说中了。",
+      "我确实很累。"
+    ],
+    "grant_flags": ["FLAG_READ_LOG_0004"],
+    "require_flags": []
+  }
+]

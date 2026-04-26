@@ -1,9 +1,9 @@
 package com.tty7.core.engine;
 
-import com.tty7.api.BinaryBlock;
-import com.tty7.api.Block;
-import com.tty7.api.BlockMeta;
-import com.tty7.api.UnaryBlock;
+import com.tty7.api.algoblock.BinaryBlock;
+import com.tty7.api.algoblock.Block;
+import com.tty7.api.algoblock.BlockMeta;
+import com.tty7.api.algoblock.UnaryBlock;
 import com.tty7.core.blocks.basic.ArrayBlock;
 import com.tty7.core.blocks.basic.IdentityBlock;
 import com.tty7.core.blocks.collection.PrioQueueBlock;

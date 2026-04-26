@@ -1,0 +1,27 @@
+[
+  {
+    "id": "loop1.blocks.run",
+    "content_lines": [
+      "BLOCKS — A Sequence Transformation Puzzle",
+      "v0.9 beta, not ready for release",
+      "",
+      "You are given a sequence of integers.",
+      "You are given a target sequence.",
+      "You have a set of blocks. Each block is a function.",
+      "You nest them, compose them, write an expression.",
+      "The expression transforms the input sequence into the target.",
+      "",
+      "That's it. No monsters, no timer, no score.",
+      "Just the sequence.",
+      "And what you do to it."
+    ],
+    "story_lines": [
+      "我运行了它。",
+      "终端清屏。ASCII 边框在屏幕上画出一个干净的界面。",
+      "第一行是关卡名，第二行是输入序列，第三行是目标序列，第四行是可用积木列表。",
+      "光标停在输入区，等待我打出表达式。"
+    ],
+    "grant_flags": ["FLAG_RUN_BLOCKS"],
+    "require_flags": []
+  }
+]

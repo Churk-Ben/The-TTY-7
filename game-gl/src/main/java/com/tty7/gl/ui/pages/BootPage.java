@@ -11,6 +11,7 @@ import com.tty7.gl.renderer.effect.UiEffect;
 import com.tty7.gl.ui.components.PanelComponent;
 import com.tty7.gl.ui.components.StoryPanelComponent;
 import com.tty7.gl.ui.effect.GlitchEffect;
+import com.tty7.core.story.StoryNode;
 import com.tty7.gl.ui.tea.Program;
 import com.tty7.gl.ui.tea.UpdateResult;
 import com.tty7.gl.utils.TextUtil;
@@ -88,13 +89,13 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
             "[ INFO ] goodbye",
             "[  OK  ] System halted");
 
-    private static final List<String> INTRO_STORY = List.of(
-            "I moved into this room because the rent was cheap and the owner asked no questions.",
-            "The machine was already here, humming like it had been waiting for someone patient enough to listen.",
-            "The old tenant left no forwarding address, only dirty sectors, half-written notes, and a login prompt that refuses to forget them.",
-            "Whoever \"I\" used to be in these logs, I inherited the remains. Tonight is the first time I am finally booting all the way in.");
+    private final List<String> introStory;
 
     private final GlitchEffect glitchEffect = new GlitchEffect();
+
+    public BootPage(StoryNode introNode) {
+        this.introStory = introNode == null ? List.of() : List.copyOf(introNode.storyLines());
+    }
 
     public record Model(
             Phase phase,
@@ -104,34 +105,54 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
             Target target,
             int visibleLogLines,
             StoryPanelComponent.Model storyModel,
-            boolean transitionDispatched) {
+            boolean transitionDispatched,
+            Entry[] entries) {
 
-        public static Model init() {
-            return firstBoot();
+        public static Model init(com.tty7.core.save.SaveState saveState) {
+            return firstBoot(saveState);
         }
 
-        public static Model firstBoot() {
-            return grub(false, System.currentTimeMillis());
+        public static Model firstBoot(com.tty7.core.save.SaveState saveState) {
+            return grub(false, System.currentTimeMillis(), saveState);
         }
 
-        public static Model returnToGrub() {
-            return grub(true, System.currentTimeMillis());
+        public static Model returnToGrub(com.tty7.core.save.SaveState saveState) {
+            return grub(true, System.currentTimeMillis(), saveState);
         }
 
-        public static Model startReboot() {
+        public static Model startReboot(com.tty7.core.save.SaveState saveState) {
             return new Model(Phase.SHUTDOWN, System.currentTimeMillis(), DEFAULT_ENTRY_INDEX, false, Target.REBOOT, 0,
-                    StoryPanelComponent.Model.init(), false);
+                    StoryPanelComponent.Model.init(), false, getEntries(saveState));
         }
 
-        public static Model startPowerOff() {
+        public static Model startPowerOff(com.tty7.core.save.SaveState saveState) {
             return new Model(Phase.SHUTDOWN, System.currentTimeMillis(), DEFAULT_ENTRY_INDEX, false, Target.POWEROFF, 0,
-                    StoryPanelComponent.Model.init(), false);
+                    StoryPanelComponent.Model.init(), false, getEntries(saveState));
         }
 
-        private static Model grub(boolean timeoutEnabled, long nowMillis) {
+        private static Model grub(boolean timeoutEnabled, long nowMillis, com.tty7.core.save.SaveState saveState) {
+            Entry[] entries = getEntries(saveState);
             return new Model(Phase.GRUB, nowMillis, DEFAULT_ENTRY_INDEX, timeoutEnabled,
-                    ENTRIES[DEFAULT_ENTRY_INDEX].target(),
-                    0, StoryPanelComponent.Model.init(), false);
+                    entries[DEFAULT_ENTRY_INDEX].target(),
+                    0, StoryPanelComponent.Model.init(), false, entries);
+        }
+
+        private static Entry[] getEntries(com.tty7.core.save.SaveState saveState) {
+            if (saveState != null && com.tty7.core.story.BranchResolver.canEnterLoop3(saveState)) {
+                return new Entry[] {
+                        new Entry("TTY7 (Final)", "Boot the hidden seventh terminal", Target.LOGIN),
+                        new Entry("TTY7 (Live Environment)", "Open diagnostics without mounting the player session", Target.DIAGNOSTICS),
+                        new Entry("Power Off", "Display shutdown guidance and terminate the process", Target.POWEROFF)
+                };
+            }
+            if (saveState != null && com.tty7.core.story.BranchResolver.canEnterLoop2(saveState)) {
+                return new Entry[] {
+                        new Entry("TTY7 (Restored Session)", "Boot the hidden seventh terminal", Target.LOGIN),
+                        new Entry("TTY7 (Live Environment)", "Open diagnostics without mounting the player session", Target.DIAGNOSTICS),
+                        new Entry("Power Off", "Display shutdown guidance and terminate the process", Target.POWEROFF)
+                };
+            }
+            return ENTRIES;
         }
     }
 
@@ -175,7 +196,7 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
 
     @Override
     public Model init() {
-        return Model.init();
+        return Model.init(com.tty7.core.save.SaveState.empty());
     }
 
     @Override
@@ -208,21 +229,21 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
 
     private UpdateResult<Model, Cmd> handleGrubIntent(Model model, InputIntent intent) {
         if (intent instanceof InputIntent.NavigatePrev) {
-            int next = model.selectedIndex() == 0 ? ENTRIES.length - 1 : model.selectedIndex() - 1;
+            int next = model.selectedIndex() == 0 ? model.entries().length - 1 : model.selectedIndex() - 1;
             return new UpdateResult<>(new Model(Phase.GRUB, model.phaseStartedAtMillis(), next, false,
-                    ENTRIES[next].target(), 0, StoryPanelComponent.Model.init(), false),
+                    model.entries()[next].target(), 0, StoryPanelComponent.Model.init(), false, model.entries()),
                     List.of(new Cmd.PlaySound(SFX_CURSOR_MOVE)));
         }
 
         if (intent instanceof InputIntent.NavigateNext) {
-            int next = (model.selectedIndex() + 1) % ENTRIES.length;
+            int next = (model.selectedIndex() + 1) % model.entries().length;
             return new UpdateResult<>(new Model(Phase.GRUB, model.phaseStartedAtMillis(), next, false,
-                    ENTRIES[next].target(), 0, StoryPanelComponent.Model.init(), false),
+                    model.entries()[next].target(), 0, StoryPanelComponent.Model.init(), false, model.entries()),
                     List.of(new Cmd.PlaySound(SFX_CURSOR_MOVE)));
         }
 
         if (intent instanceof InputIntent.Cancel) {
-            return new UpdateResult<>(Model.returnToGrub(), List.of(new Cmd.PlaySound(SFX_CURSOR_MOVE)));
+            return new UpdateResult<>(Model.returnToGrub(null), List.of(new Cmd.PlaySound(SFX_CURSOR_MOVE)));
         }
 
         if (intent instanceof InputIntent.Submit) {
@@ -241,7 +262,7 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
                         new StoryPanelComponent.Msg.Next());
                 Model nextModel = new Model(model.phase(), model.phaseStartedAtMillis(), model.selectedIndex(),
                         model.timeoutEnabled(), model.target(), model.visibleLogLines(), r.model(),
-                        model.transitionDispatched());
+                        model.transitionDispatched(), model.entries());
 
                 if (r.model().isFinished() && !nextModel.transitionDispatched()) {
                     return completeSequence(nextModel, true);
@@ -283,7 +304,7 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
 
         if (revealedLogs != model.visibleLogLines()) {
             nextModel = new Model(model.phase(), model.phaseStartedAtMillis(), model.selectedIndex(),
-                    model.timeoutEnabled(), model.target(), revealedLogs, nextStoryModel, model.transitionDispatched());
+                    model.timeoutEnabled(), model.target(), revealedLogs, nextStoryModel, model.transitionDispatched(), model.entries());
         }
 
         if (revealedLogs >= logLines.size() && !storyLines.isEmpty() && !nextStoryModel.active()
@@ -293,14 +314,14 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
             nextStoryModel = r.model();
             nextModel = new Model(nextModel.phase(), nextModel.phaseStartedAtMillis(), nextModel.selectedIndex(),
                     nextModel.timeoutEnabled(), nextModel.target(), revealedLogs, nextStoryModel,
-                    nextModel.transitionDispatched());
+                    nextModel.transitionDispatched(), nextModel.entries());
         }
 
         if (revealedLogs >= logLines.size() && (storyLines.isEmpty() || nextStoryModel.isFinished())) {
             long logFinishTime = model.phaseStartedAtMillis() + logLines.size() * LOG_LINE_INTERVAL_MS;
             if (!nextModel.transitionDispatched() && nowMillis >= logFinishTime + SEQUENCE_COMPLETE_HOLD_MS) {
-                return completeSequence(nextModel, true);
-            }
+                    return completeSequence(nextModel, true);
+                }
         }
 
         return new UpdateResult<>(nextModel, List.of());
@@ -315,12 +336,12 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
                     : StoryPanelComponent.update(model.storyModel(), new StoryPanelComponent.Msg.Show(storyLines))
                             .model();
             Model nextModel = new Model(model.phase(), model.phaseStartedAtMillis(), model.selectedIndex(),
-                    model.timeoutEnabled(), model.target(), logLines.size(), nextStoryModel, false);
+                    model.timeoutEnabled(), model.target(), logLines.size(), nextStoryModel, false, model.entries());
             return new UpdateResult<>(nextModel, List.of());
         }
 
         Model finished = new Model(model.phase(), nowMillis, model.selectedIndex(), model.timeoutEnabled(),
-                model.target(), logLines.size(), model.storyModel(), false);
+                model.target(), logLines.size(), model.storyModel(), false, model.entries());
         return completeSequence(finished, true);
     }
 
@@ -331,7 +352,7 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
         }
 
         if (model.target() == Target.REBOOT) {
-            return new UpdateResult<>(Model.returnToGrub(), commands);
+            return new UpdateResult<>(Model.returnToGrub(null), commands);
         }
 
         if (model.target() == Target.LOGIN) {
@@ -344,15 +365,15 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
 
         Model nextModel = new Model(model.phase(), model.phaseStartedAtMillis(), model.selectedIndex(),
                 model.timeoutEnabled(), model.target(), sequenceLogLines(model.target()).size(), model.storyModel(),
-                true);
+                true, model.entries());
         return new UpdateResult<>(nextModel, commands);
     }
 
     private UpdateResult<Model, Cmd> startSelectedEntry(Model model, long nowMillis) {
-        Entry entry = ENTRIES[model.selectedIndex()];
+        Entry entry = model.entries()[model.selectedIndex()];
         Phase nextPhase = entry.target() == Target.POWEROFF ? Phase.SHUTDOWN : Phase.BOOTING;
         Model nextModel = new Model(nextPhase, nowMillis, model.selectedIndex(), false, entry.target(), 0,
-                StoryPanelComponent.Model.init(), false);
+                StoryPanelComponent.Model.init(), false, model.entries());
         return new UpdateResult<>(nextModel, List.of(new Cmd.PlaySound(SFX_CURSOR_ENTER)));
     }
 
@@ -361,14 +382,14 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
         int rows = buffer.rows();
         if (cols < 24 || rows < 8) {
             printClipped(buffer, 0, 0, Math.max(1, cols), "tty7 boot menu", FG, BG);
-            printClipped(buffer, 0, Math.min(rows - 1, 1), Math.max(1, cols), ENTRIES[model.selectedIndex()].label(),
+            printClipped(buffer, 0, Math.min(rows - 1, 1), Math.max(1, cols), model.entries()[model.selectedIndex()].label(),
                     ACCENT, BG);
             return new RenderFrame(buffer, new CursorState(0, Math.min(rows - 1, 1), true, true, CURSOR),
                     List.of(new UiEffect.Crt(0.15f)));
         }
 
         int boxWidth = Math.min(92, Math.max(24, cols - 4));
-        int boxHeight = Math.min(Math.max(14, ENTRIES.length + 11), Math.max(8, rows - 2));
+        int boxHeight = Math.min(Math.max(14, model.entries().length + 11), Math.max(8, rows - 2));
         int boxX = Math.max(0, (cols - boxWidth) / 2);
         int boxY = Math.max(0, (rows - boxHeight) / 2);
 
@@ -387,8 +408,8 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
 
         int cursorCol = contentX;
         int cursorRow = row;
-        for (int i = 0; i < ENTRIES.length; i++) {
-            Entry entry = ENTRIES[i];
+        for (int i = 0; i < model.entries().length; i++) {
+            Entry entry = model.entries()[i];
             boolean selected = i == model.selectedIndex();
             int bg = selected ? SELECT_BG : PANEL_BG;
             int fg = selected ? FG : DIM_FG;
@@ -403,7 +424,7 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
         }
 
         row++;
-        printClipped(buffer, contentX, row++, contentWidth, ENTRIES[model.selectedIndex()].description(), WARN,
+        printClipped(buffer, contentX, row++, contentWidth, model.entries()[model.selectedIndex()].description(), WARN,
                 PANEL_BG);
 
         String timeoutLine;
@@ -504,7 +525,7 @@ public class BootPage implements Program<BootPage.Model, BootPage.Msg, BootPage.
     }
 
     private List<String> sequenceStoryLines(Target target) {
-        return target == Target.LOGIN ? INTRO_STORY : List.of();
+        return target == Target.LOGIN ? introStory : List.of();
     }
 
     private boolean isSequenceComplete(Model model) {

@@ -1,0 +1,79 @@
+[
+  {
+    "id": "loop2.s.medical",
+    "content_lines": [
+      "I'm not writing this for pity.",
+      "I'm not even sure I'm writing it for anyone.",
+      "",
+      "Stage III, diagnosed two years ago. Last scan was not good.",
+      "They used the word \"progression\". I've come to hate that word.",
+      "",
+      "I have maybe months. I don't want to spend them all in bed.",
+      "I want to finish the game. I want to leave something.",
+      "",
+      "Livia doesn't read this. She can't look at medical documents.",
+      "She says: \"I know what's happening. I don't want to see it written.\"",
+      "I understand.",
+      "",
+      "But I need to write it somewhere.",
+      "So here it is. In a hidden folder on a disk I don't know the future of."
+    ],
+    "story_lines": ["医学报告。", "她把病情藏在这个不被人注意的地方。"],
+    "grant_flags": ["FLAG_READ_MEDICAL"],
+    "require_flags": []
+  },
+  {
+    "id": "loop2.s.unsent_email",
+    "content_lines": [
+      "To: [redacted]",
+      "",
+      "Livia,",
+      "",
+      "I've tried to write this six times. This is number seven.",
+      "",
+      "I know you're angry. You have every right to be. I pushed you away",
+      "when things got bad. I said I didn't want you to see me like this.",
+      "I thought I was protecting you. I was actually just scared.",
+      "",
+      "The game is called BLOCKS. It's almost done. Level 06 is yours.",
+      "Level 06 has always been yours.",
+      "",
+      "I never did find a way to tell you I was sorry.",
+      "",
+      "If you ever see this—I'm sorry. I should have let you stay.",
+      "",
+      "Love,",
+      "Sera"
+    ],
+    "story_lines": ["未发送的邮件。", "“I should have let you stay.”"],
+    "grant_flags": ["FLAG_READ_EMAIL"],
+    "require_flags": []
+  },
+  {
+    "id": "loop2.s.note_to_finder",
+    "content_lines": [
+      "Hello,",
+      "",
+      "If you're reading this, the disk has been reused, and somehow my",
+      "little fragment survived. I've heard of data remanence. Never thought",
+      "I'd be relying on it.",
+      "",
+      "My name is Sera. I wrote this terminal, this game, these words.",
+      "I don't know who you are. But you've been reading for a while.",
+      "That makes you someone.",
+      "",
+      "I have a request:",
+      "",
+      "If you can, finish what I couldn't. The game, the words, whatever",
+      "you find here. Put them somewhere. Or just remember them for a little",
+      "while. That's enough.",
+      "",
+      "Thank you for being here.",
+      "",
+      "— Sera Leung"
+    ],
+    "story_lines": ["致发现者的信。", "我读完了 .s 里的所有文件。门彻底打开了。"],
+    "grant_flags": ["FLAG_READ_FINDER"],
+    "require_flags": []
+  }
+]

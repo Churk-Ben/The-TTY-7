@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-import com.tty7.api.BlockMeta;
-import com.tty7.api.EvalContext;
-import com.tty7.api.UnaryBlock;
+import com.tty7.api.algoblock.BlockMeta;
+import com.tty7.api.algoblock.EvalContext;
+import com.tty7.api.algoblock.UnaryBlock;
 
 @BlockMeta(name = "Sort", signature = "Collection<T> -> List<T>", description = "自然序排序", arity = 1)
 public class SortBlock extends UnaryBlock<Object, List<?>> {

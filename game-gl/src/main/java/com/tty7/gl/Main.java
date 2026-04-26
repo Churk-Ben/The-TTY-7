@@ -7,6 +7,12 @@ import com.tty7.core.engine.BlockRegistry;
 import com.tty7.core.engine.GameCoreService;
 import com.tty7.core.levels.Level;
 import com.tty7.core.levels.LevelLoader;
+import com.tty7.core.save.JsonSaveStateRepository;
+import com.tty7.core.save.SaveState;
+import com.tty7.core.save.SaveStateRepository;
+import com.tty7.core.story.NarrativeLoader;
+import com.tty7.core.story.StoryDatabase;
+// import com.tty7.core.story.StoryNode;
 import com.tty7.gl.input.GlfwInputAdapter;
 import com.tty7.gl.input.InputEventQueue;
 import com.tty7.gl.input.event.InputEvent;
@@ -28,17 +34,26 @@ import com.tty7.gl.ui.app.AppProgram;
 import com.tty7.gl.ui.pages.BootPage;
 import com.tty7.gl.ui.pages.ConsolePage;
 import com.tty7.gl.ui.pages.DiagnosticsPage;
+import com.tty7.gl.ui.pages.EndingPage;
 import com.tty7.gl.ui.pages.GamePage;
 import com.tty7.gl.ui.pages.StartPage;
+import com.tty7.gl.ui.pages.StoryPage;
 import com.tty7.gl.ui.tea.TeaRuntime;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+// import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
 public class Main {
+    private static Path defaultSavePath() {
+        return Paths.get(System.getProperty("user.home"), ".tty7", "save.json");
+    }
+
     public static void main(String[] args) {
         GLFWErrorCallback.createPrint(System.err).set();
         if (!glfwInit()) {
@@ -78,18 +93,27 @@ public class Main {
         glfwShowWindow(window);
         glfwFocusWindow(window);
 
+        SaveStateRepository saveStateRepository = new JsonSaveStateRepository(defaultSavePath());
+        SaveState initialSaveState = saveStateRepository.load();
+
+        NarrativeLoader narrativeLoader = new NarrativeLoader();
+        StoryDatabase storyDb = new StoryDatabase(narrativeLoader);
+
         LevelLoader levelLoader = new LevelLoader();
         List<Level> levels = levelLoader.loadRange(1, 10);
         BlockRegistry registry = new BlockRegistry();
         GameCoreService service = new GameCoreService(registry);
 
-        BootPage bootPage = new BootPage();
+        BootPage bootPage = new BootPage(storyDb.getNode("boot.intro"));
         StartPage startPage = new StartPage();
         GamePage gamePage = new GamePage(new CompletionService(registry));
-        ConsolePage consolePage = new ConsolePage();
+        ConsolePage consolePage = new ConsolePage(storyDb);
+        StoryPage storyPage = new StoryPage();
+        EndingPage endingPage = new EndingPage(storyDb);
         DiagnosticsPage diagnosticsPage = new DiagnosticsPage();
-        AppProgram program = new AppProgram(bootPage, startPage, gamePage, consolePage, diagnosticsPage, levels);
-        AppCmdHandler cmdHandler = new AppCmdHandler(service);
+        AppProgram program = new AppProgram(bootPage, startPage, gamePage, consolePage, storyPage, endingPage,
+                diagnosticsPage, levels, initialSaveState);
+        AppCmdHandler cmdHandler = new AppCmdHandler(service, saveStateRepository);
 
         TeaRuntime<AppModel, AppMsg, AppCmd> uiRuntime = new TeaRuntime<>(program, cmdHandler);
         InputEventQueue eventQueue = new InputEventQueue();

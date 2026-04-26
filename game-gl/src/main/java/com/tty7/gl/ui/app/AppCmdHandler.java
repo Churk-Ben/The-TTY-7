@@ -2,6 +2,7 @@ package com.tty7.gl.ui.app;
 
 import com.tty7.core.engine.GameCoreService;
 import com.tty7.core.engine.SubmissionResult;
+import com.tty7.core.save.SaveStateRepository;
 import com.tty7.gl.ui.tea.CmdHandler;
 
 import java.io.InputStream;
@@ -17,6 +18,7 @@ public class AppCmdHandler implements CmdHandler<AppCmd, AppMsg> {
     public static final String TITLE_BGM_FIRST_MEET = "/assets/audio/bgm/joelfazhari-dark-mysterious-true-crime-music-loopable-235870.mp3";
     public static final String TITLE_BGM_BACK_AGAIN = "/assets/audio/bgm/nickpanekaiassets-stealth-breacher-tense-title-screen-218087.mp3";
     private final GameCoreService service;
+    private final SaveStateRepository saveStateRepository;
     private final ExecutorService commandExecutor;
     private final ExecutorService audioExecutor;
     private final ExecutorService musicExecutor;
@@ -27,8 +29,9 @@ public class AppCmdHandler implements CmdHandler<AppCmd, AppMsg> {
     private volatile Player currentMusicPlayer;
     private volatile Future<?> loopingMusicTask;
 
-    public AppCmdHandler(GameCoreService service) {
+    public AppCmdHandler(GameCoreService service, SaveStateRepository saveStateRepository) {
         this.service = service;
+        this.saveStateRepository = saveStateRepository;
         this.commandExecutor = Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "ui-command-executor");
             t.setDaemon(true);
@@ -70,7 +73,11 @@ public class AppCmdHandler implements CmdHandler<AppCmd, AppMsg> {
         if (cmd instanceof AppCmd.Submit submit) {
             commandExecutor.submit(() -> {
                 SubmissionResult result = service.submit(submit.level(), submit.source(), submit.elapsedSeconds());
-                dispatch.accept(new AppMsg.SubmitFinished(result));
+                dispatch.accept(new AppMsg.SubmitFinished(submit.level(), submit.source(), result));
+            });
+        } else if (cmd instanceof AppCmd.PersistSave persistSave) {
+            commandExecutor.submit(() -> {
+                saveStateRepository.save(persistSave.saveState());
             });
         } else if (cmd instanceof AppCmd.Exit) {
             System.exit(0);

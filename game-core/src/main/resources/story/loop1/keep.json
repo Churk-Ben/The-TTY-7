@@ -1,0 +1,17 @@
+[
+  {
+    "id": "loop1.touch.keep",
+    "content_lines": ["Thank you for staying.", "", "state: clean"],
+    "story_lines": [
+      "一个零字节的文件。等于什么都没说。等于什么都说了。",
+      "代码雨停了。TTY7 的终端框开始消退，从边缘向中心，像墨水被水稀释。",
+      "机器重启。GRUB 再次出现，这次没有异常条目。我进入了 GNOME。",
+      "桌面回来的时候，一切都没变。但在我的家目录下，一个隐藏文件安静地躺着：",
+      "~/.keep",
+      "我没有创建它。是她留下的。或者说，是我留下的。在 TTY7 的世界里，在那个还不存在的第七号终端里。",
+      "我盯着它看了很久，没有删。"
+    ],
+    "grant_flags": ["FLAG_CREATED_KEEP"],
+    "require_flags": []
+  }
+]
